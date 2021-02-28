@@ -5,23 +5,10 @@
 #include "mh_error.h"
 #include "mh_request.h"
 #include "mh_utils.h"
-#include "mh_headers.h"
 #include "mh_memory.h"
 
 #ifndef MHSERV_MH_HTTP_H
 #define MHSERV_MH_HTTP_H
-
-// Because mh_request isn't enough, here's a proper request struct
-typedef struct {
-    // The request bytes
-    mh_memory const *input;
-    // The top part of the header
-    mh_request top;
-    // The HTTP headers
-    mh_headers* headers;
-    // The client address
-    struct sockaddr_in address;
-} mh_http_request;
 
 // For simplicity
 #define ECHO(x) mh_memory_write_string(body, x)
@@ -29,66 +16,49 @@ typedef struct {
 #define DO_NOT_SEND(x) free(x->buffer.ptr)
 
 // This needs to be implemented in main if you want to use HTTP
-void mh_http_api(mh_memory* header, mh_memory* body, mh_http_request request);
+void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request);
 
-// Does basic HTTP stuff
-void mh_http(int sock, mh_buffer* input, mh_headers* request_headers, struct sockaddr_in addr) {
-    // Read the whole request
-    // TODO: Read the headers first, and add a function to read the rest
-    size_t total;
-    for (total = 0; (total = mh_read_to_end(sock, input, total)) == input->size; mh_buffer_double(input));
 
-    // Read the request top, if it's not valid, get away from the client
-    mh_request request;
-    if (!mh_request_read(input, &request)) return;
+// To connect the TCP listener with the HTTP handler
+void mh_http_connect(int sock, struct sockaddr_in addr) {
+    // Read the request header
+    mh_request request = mh_request_new(sock);
+    request.address = addr;
 
-    // Read the request headers
-    *request_headers = mh_headers_get(input);
-
-    // Create the response headers and response body memory streams
+    // Create the response header and body
     mh_memory header = mh_memory_new(1024);
     mh_memory body = mh_memory_new(1024);
-
-    // The request text should be readable too
-    mh_memory request_text = (mh_memory) {total, input};
-
-    // Write an empty line to separate the body from the header
     mh_memory_write_string(&body, "\n");
 
-    // Call the user defined function with the request
-    mh_http_api(&header, &body, (mh_http_request) {&request_text, request, request_headers, addr});
+    // Call the user defined function
+    mh_http_api(&header, &body, &request);
 
-    // Send the header
+    // Write the response header if that isn't handled by the user
     if (header.buffer.ptr != NULL) {
+        // If there is a body, write the content length to prevent a "connection reset" problem
+        if (body.buffer.ptr != NULL) {
+            char content_header[50];
+            sprintf(content_header, "Content-Length: %zu\n", body.position-1);
+            mh_memory_write_string(&header, content_header);
+        }
         send(sock, header.buffer.ptr, header.position, 0);
         free(header.buffer.ptr);
     }
-    // Send the body
+
+    // Write the body (if there is one)
     if (body.buffer.ptr != NULL) {
         send(sock, body.buffer.ptr, body.position, 0);
         free(body.buffer.ptr);
     }
-}
 
-// To connect the TCP listener with the HTTP handler
-void mh_http_connect(int sock, struct sockaddr_in addr) {
-    // Create an input buffer to read into
-    mh_buffer input = mh_buffer_new(1024);
-    // Create the headers, so we can free them if the handler returns too early
-    mh_headers headers;
-
-    // Call the handler
-    mh_http(sock, &input, &headers, addr);
-
-    // Free everything
-    if (headers.list != NULL) {
-        for (size_t i = 0; i < headers.count; i++) {
-            free(headers.list[i].key);
-            free(headers.list[i].value);
-        }
-        free(headers.list);
+    // Free resources
+    free(request.method);
+    free(request.version);
+    free(request.url);
+    for(size_t i = 0; i < request.header_count; i++){
+        free(request.headers[i]);
     }
-    free(input.ptr);
+    free(request.headers);
     close(sock);
 }
 #endif //MHSERV_MH_HTTP_H

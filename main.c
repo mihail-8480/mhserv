@@ -2,11 +2,11 @@
 #include "mh_http.h"
 
 // Do some HTTP stuff
-void mh_http_api(mh_memory* header, mh_memory* body, mh_http_request request) {
+void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request) {
 
     // Print some useful info about the client
-    printf("%s:%hu -> %s [%zu headers] `%s`\n", inet_ntoa(request.address.sin_addr),
-           request.address.sin_port,request.top.type, request.headers->count, request.top.uri);
+    printf("%s:%hu -> %s [%zu headers] `%s`\n", inet_ntoa(request->address.sin_addr),
+           request->address.sin_port,request->method, request->header_count, request->url);
 
     // Send the status info
     HEADER("HTTP/1.1 200 OK\n");

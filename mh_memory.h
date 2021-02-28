@@ -40,4 +40,22 @@ void mh_memory_write(mh_memory *output, const void* data, size_t size) {
 void mh_memory_write_string(mh_memory *output, const char *str) {
     mh_memory_write(output, str, strlen(str));
 }
+
+// Read from the buffer into a string until a certain character is reached
+// Returns the offset at where you should continue reading
+size_t mh_memory_read_until(const mh_memory* memory, char chr, size_t offset, char **output) {
+    char *brk;
+    char *off = (char*)memory->buffer.ptr + offset;
+    if ((brk = strchr(off, chr)) == NULL) {
+        *output = NULL;
+        return 0;
+    }
+    size_t size = (size_t)brk - (size_t)memory->buffer.ptr;
+    *output = malloc(size+1);
+    memcpy(*output, off, size);
+    (*output)[size] = '\0';
+    return size + 1;
+}
+
+
 #endif //MHSERV_MH_MEMORY_H

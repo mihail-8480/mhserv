@@ -1,27 +1,59 @@
 #include "include.h"
+#include "mh_socket.h"
 #include "mh_buffer.h"
+#include "mh_memory.h"
+#include "mh_utils.h"
 
 #ifndef MHSERV_MH_REQUEST_H
 #define MHSERV_MH_REQUEST_H
 
-// The request header's header.
+// The request structure
 typedef struct {
-    // Request type
-    char type[10];
-
-    // The URL
-    char uri[2000];
-
+    // HTTP method
+    char *method;
+    // URL
+    char *url;
     // HTTP version
-    char version[5];
+    char *version;
+    // The headers (might need trimming)
+    char **headers;
+    // The number of headers (including the last empty header)
+    size_t header_count;
+    // The address of the client
+    struct sockaddr_in address;
 } mh_request;
 
-// Read the request information from the buffer
-int mh_request_read(const mh_buffer* buf, mh_request* request) {
-    // Not a very smart way to do it, but it works
-    int read = sscanf((char*)buf->ptr, "%s %s HTTP/%s\n", request->type, request->uri, request->version);
-    // Report the error, but do not crash
-    mh_error_user(read, "Not a valid HTTP request", false);
-    return read;
+// Start reading from a socket and create a HTTP request struct
+mh_request mh_request_new(int sock) {
+    // Temp memory stream
+    mh_memory memory = mh_memory_new(1024);
+    // The memory where the headers will be located at
+    mh_buffer headers = mh_buffer_new(sizeof(char*) * 32);
+    // Where to continue reading
+    size_t offset = 0;
+
+    // Read the first line and make the request out of it
+    mh_request request_top = {
+            mh_trim(mh_read_until(sock, &memory, &offset, ' ', 1)),
+            mh_trim(mh_read_until(sock, &memory, &offset, ' ', 1)),
+            mh_trim(mh_read_until(sock, &memory, &offset, '\r', 1))
+    };
+
+    // Read the headers
+    char *header;
+    size_t i = 0;
+    do {
+        header = mh_trim(mh_read_until(sock, &memory, &offset, '\r', 1));
+        mh_buffer_auto_double((i+1)*sizeof(char*),&headers);
+        ((char**)headers.ptr)[i++] = header;
+    } while (*header != '\0');
+
+    // Free the temp memory stream
+    free(memory.buffer.ptr);
+
+    // Add the headers to the request
+    request_top.headers = headers.ptr;
+    request_top.header_count = i;
+    return request_top;
 }
 #endif //MHSERV_MH_REQUEST_H

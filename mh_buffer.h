@@ -30,4 +30,12 @@ void mh_buffer_double(mh_buffer* b) {
     mh_buffer_increase(b, b->size * 2);
 }
 
+// Double if the buffer is smaller than that size
+void mh_buffer_auto_double(size_t req_size, mh_buffer* buffer) {
+    while(buffer->size < req_size) {
+        mh_buffer_double(buffer);
+    }
+}
+
+
 #endif //MHSERV_MH_BUFFER_H
