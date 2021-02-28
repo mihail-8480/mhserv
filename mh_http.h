@@ -79,6 +79,10 @@ void mh_http_connect(int sock, struct sockaddr_in addr) {
 
     // Free everything
     if (headers.list != NULL) {
+        for (size_t i = 0; i < headers.count; i++) {
+            free(headers.list[i].key);
+            free(headers.list[i].value);
+        }
         free(headers.list);
     }
     free(input.ptr);
