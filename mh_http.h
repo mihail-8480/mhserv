@@ -26,6 +26,7 @@ typedef struct {
 // For simplicity
 #define ECHO(x) mh_memory_write_string(body, x)
 #define HEADER(x) mh_memory_write_string(header, x)
+#define DO_NOT_SEND(x) free(x->buffer.ptr)
 
 // This needs to be implemented in main if you want to use HTTP
 void mh_http_api(mh_memory* header, mh_memory* body, mh_http_request request);
@@ -35,7 +36,7 @@ void mh_http(int sock, mh_buffer* input, mh_headers* request_headers, struct soc
     // Read the whole request
     // TODO: Read the headers first, and add a function to read the rest
     size_t total;
-    for(total = 0; (total = mh_read_to_end(sock, input, total)) == input->size; mh_buffer_double(input));
+    for (total = 0; (total = mh_read_to_end(sock, input, total)) == input->size; mh_buffer_double(input));
 
     // Read the request top, if it's not valid, get away from the client
     mh_request request;
@@ -49,22 +50,24 @@ void mh_http(int sock, mh_buffer* input, mh_headers* request_headers, struct soc
     mh_memory body = mh_memory_new(1024);
 
     // The request text should be readable too
-    mh_memory request_text = (mh_memory){total, input};
+    mh_memory request_text = (mh_memory) {total, input};
 
     // Write an empty line to separate the body from the header
     mh_memory_write_string(&body, "\n");
 
     // Call the user defined function with the request
-    mh_http_api(&header, &body, (mh_http_request){&request_text, request, request_headers, addr});
+    mh_http_api(&header, &body, (mh_http_request) {&request_text, request, request_headers, addr});
 
-    // Send the response
-    send(sock, header.buffer.ptr, header.position, 0);
-    send(sock, body.buffer.ptr, body.position, 0);
-
-    // Free the response memory
-    free(header.buffer.ptr);
-    free(body.buffer.ptr);
-
+    // Send the header
+    if (header.buffer.ptr != NULL) {
+        send(sock, header.buffer.ptr, header.position, 0);
+        free(header.buffer.ptr);
+    }
+    // Send the body
+    if (body.buffer.ptr != NULL) {
+        send(sock, body.buffer.ptr, body.position, 0);
+        free(body.buffer.ptr);
+    }
 }
 
 // To connect the TCP listener with the HTTP handler
