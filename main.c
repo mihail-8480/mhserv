@@ -1,3 +1,5 @@
+#define MH_ASYNC
+
 #include "mh_tcp.h"
 #include "mh_http.h"
 
@@ -28,4 +30,5 @@ int main(void) {
     // Start http server on 8080
     printf("Starting server on port %hu...\n", port);
     mh_tcp(port, 50, mh_http_connect);
+
 }
