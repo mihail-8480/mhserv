@@ -21,7 +21,11 @@ void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request) {
 
     // Best website of 2021
     ECHO("<h1>Hello, World!</h1>");
-
+#ifdef MH_ASYNC
+    ECHO("<p>Server is running in async mode.</p>");
+#else
+    ECHO("<p>Server is running in single-thread mode.");
+#endif
 }
 int main(void) {
     // TODO: add command line arguments
