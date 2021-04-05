@@ -1,4 +1,3 @@
-#include <string.h>
 #include "mh/mh_tcp.h"
 #include "mh/mh_stream.h"
 const size_t copy_buffer_size = 128;
