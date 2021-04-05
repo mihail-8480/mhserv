@@ -1,31 +1,16 @@
+#include <stdio.h>
+#include "mh/mh_tcp.h"
 #include "mh/mh_stream.h"
-#include "stdio.h"
-
-void test_stream(void) {
-    mh_stream_t* stream = mh_memory_stream_new(0, false);
-    mh_stream_write(stream, "Hello", 5);
-    printf("pos: %zu/%zu\n", mh_stream_get_position(stream), mh_stream_get_size(stream));
-    mh_stream_write(stream, "Hello", 5);
-    printf("pos: %zu/%zu\n", mh_stream_get_position(stream), mh_stream_get_size(stream));
-    mh_stream_write(stream, "Hello", 5);
-    printf("pos: %zu/%zu\n", mh_stream_get_position(stream), mh_stream_get_size(stream));
-    mh_stream_write(stream, "Hello", 5);
-    printf("pos: %zu/%zu\n", mh_stream_get_position(stream), mh_stream_get_size(stream));
-    mh_stream_write(stream, "Hello", 5);
-    printf("pos: %zu/%zu\n", mh_stream_get_position(stream), mh_stream_get_size(stream));
-    mh_stream_write(stream, "", 1);
-    size_t size = mh_stream_get_position(stream);
-    mh_stream_seek(stream, 0);
-    mh_stream_t* stream1 = mh_memory_stream_new(size, true);
-    mh_stream_copy_to(stream1, stream, size);
-    mh_stream_free(stream);
-    mh_stream_seek(stream1, 0);
-    char* string = mh_stream_read(stream1, size);
-    puts(string);
-    free(string);
-    mh_stream_free(stream1);
+void on_connect(int socket, mh_socket_address address) {
+    mh_stream_t* socket_stream = mh_socket_stream_new(socket);
+    mh_stream_t* request = mh_memory_stream_new(1024, false);
+    mh_stream_copy_to(request, socket_stream, 1024);
+    mh_stream_seek(request, 0);
+    mh_memory* request_memory = mh_memory_stream_get_memory(request);
+    printf("%s\n", (char*)request_memory->address);
+    mh_stream_free(socket_stream);
+    mh_stream_free(request);
 }
-
 int main(void) {
-    test_stream();
+    mh_tcp_start(8080, 32, on_connect);
 }

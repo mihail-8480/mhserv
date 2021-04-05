@@ -1,6 +1,7 @@
 #ifndef MHSERV_MH_STREAM_PRIVATE_H
 #define MHSERV_MH_STREAM_PRIVATE_H
 #include "mh_error.h"
+#include "mh_memory.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -9,8 +10,8 @@
 
 typedef struct mh_stream_private {
     mh_stream_t base;
-    void (*write)(void* self, char* mem, size_t count);
-    char* (*read)(void* self, size_t count);
+    void (*write)(void* self, mh_memory* buffer, size_t count);
+    void (*read)(void* self, mh_memory* buffer, size_t count);
     void (*seek)(void* self, size_t position);
     void (*free)(void*self);
     size_t (*get_position)(void *self);

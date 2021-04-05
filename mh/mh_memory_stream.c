@@ -8,14 +8,13 @@ typedef struct {
     bool fixed;
 } mh_memory_stream_t;
 
-char* mh_memory_stream_read(void* self, size_t count) {
+void mh_memory_stream_read(void* self, mh_memory* buffer, size_t count) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     if (this->memory->offset + count > this->memory->size) {
         STREAM_ERROR("The memory you are trying to read is out of range.");
     }
-    char* memory = malloc(count);
-    memcpy(memory, this->memory->address + this->memory->offset, count);
-    return memory;
+    memcpy(buffer->address, this->memory->address + this->memory->offset, count);
+    buffer->offset = count;
 }
 
 void mh_memory_stream_increase(mh_memory_stream_t* this, size_t minimal_size) {
@@ -23,7 +22,7 @@ void mh_memory_stream_increase(mh_memory_stream_t* this, size_t minimal_size) {
     mh_memory_resize(this->memory, increase);
 }
 
-void mh_memory_stream_write(void* self, char* mem, size_t count) {
+void mh_memory_stream_write(void* self, mh_memory* buffer, size_t count) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     if (this->memory->offset + count > this->memory->size) {
         if (this->fixed) {
@@ -32,7 +31,8 @@ void mh_memory_stream_write(void* self, char* mem, size_t count) {
             mh_memory_stream_increase(this, this->memory->offset + count);
         }
     }
-    memcpy(this->memory->address + this->memory->offset, mem, count);
+    memcpy(this->memory->address + this->memory->offset, buffer->address, count);
+    buffer->offset = count;
 }
 
 void mh_memory_stream_seek(void* self, size_t position) {
@@ -53,6 +53,12 @@ void mh_memory_stream_free(void* self) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     mh_memory_free(this->memory);
     free(self);
+}
+
+
+mh_memory *mh_memory_stream_get_memory(mh_stream_t *stream) {
+    mh_memory_stream_t* this = (mh_memory_stream_t*)stream;
+    return this->memory;
 }
 
 mh_stream_t *mh_memory_stream_new(size_t size, bool fixed) {
