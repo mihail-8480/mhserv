@@ -9,23 +9,22 @@ bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
     return false;
 }
 
-char *mh_stream_read(mh_stream_t *ptr, size_t count) {
+void mh_stream_read(mh_stream_t *ptr, mh_memory* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
     if (stream->can_read) {
-        char *result = stream->read(stream, count);
+        stream->read(stream, buffer, count);
         if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
             STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
         }
-        return result;
+        return;
     }
     STREAM_ERROR("Failed reading from the stream.");
-    return NULL;
 }
 
-void mh_stream_write(mh_stream_t *ptr, char* mem, size_t count) {
+void mh_stream_write(mh_stream_t *ptr, mh_memory* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
     if (stream->can_write) {
-        stream->write(stream, mem, count);
+        stream->write(stream, buffer, count);
         if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
             STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
         }
@@ -64,7 +63,10 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     if (dest_stream->can_seek && size > dest_stream->get_size(dest_stream)) {
         STREAM_ERROR("Not enough memory in dest_stream to preform a mh_stream_copy_to operation.");
     }
-    char *buff = mh_stream_read(src, size);
-    mh_stream_write(dest, buff, size);
-    free(buff);
+
+    // try to NOT read everything at once...
+    mh_memory* buffer = mh_memory_new(size, false);
+    mh_stream_read(src, buffer, size);
+    mh_stream_write(dest, buffer, buffer->offset);
+    mh_memory_free(buffer);
 }

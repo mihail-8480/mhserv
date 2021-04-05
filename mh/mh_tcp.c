@@ -1,9 +1,8 @@
 #include <signal.h>
 #include "mh_tcp.h"
 #include "mh_error.h"
-
-#ifdef MH_TCP_ASYNC
 #include "mh_tasks.h"
+
 typedef struct {
     mh_on_connect onConnect;
     int client;
@@ -17,7 +16,6 @@ mh_task_result_t mh_tcp_connected_async(mh_task_args_t args) {
     free(args);
     return NULL;
 }
-#endif
 
 void do_nothing() {
     // Really.
@@ -57,16 +55,12 @@ void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect onCo
         // If the client is invalid, crash the program
         mh_error_report_internal(client >= 0);
         // Call the onConnect event function
-#ifndef MH_TCP_ASYNC
-        onConnect(client, address);
-#else
         mh_con_task_args* args = malloc(sizeof(mh_con_task_args));
         args->onConnect = onConnect;
         args->address = address;
         args->client = client;
         mh_task task = mh_task_create(mh_tcp_connected_async, args, true);
         mh_task_run(task);
-#endif
     }
 
 }
