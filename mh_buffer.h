@@ -12,7 +12,7 @@ typedef struct {
 
 // Create a new buffer with a size
 mh_buffer mh_buffer_new(size_t size) {
-    mh_buffer b = {size, malloc(size)};
+    mh_buffer b = {size, calloc(size, 1)};
     mh_error_user(b.ptr, "Could not allocate memory", true);
     return b;
 }
