@@ -43,7 +43,7 @@ void mh_memory_write_string(mh_memory *output, const char *str) {
 
 // Read from the buffer into a string until a certain character is reached
 // Returns the offset at where you should continue reading
-size_t mh_memory_read_until(const mh_memory* memory, char chr, size_t offset, char **output) {
+static inline size_t mh_memory_read_until(const mh_memory* memory, char chr, size_t offset, char **output) {
     char *brk;
     char *off = (char*)memory->buffer.ptr + offset;
     if ((brk = strchr(off, chr)) == NULL) {

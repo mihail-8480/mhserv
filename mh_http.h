@@ -12,12 +12,11 @@
 
 // For simplicity
 #define ECHO(x) mh_memory_write_string(body, x)
-#define HEADER(x) mh_memory_write_string(header, x)
+#define HEADER(x) mh_memory_write_string(header, x CRLF)
 #define DO_NOT_SEND(x) free(x->buffer.ptr)
 
 // This needs to be implemented in main if you want to use HTTP
 void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request);
-
 
 // To connect the TCP listener with the HTTP handler
 void mh_http_connect(int sock, struct sockaddr_in addr) {
@@ -28,7 +27,6 @@ void mh_http_connect(int sock, struct sockaddr_in addr) {
     // Create the response header and body
     mh_memory header = mh_memory_new(1024);
     mh_memory body = mh_memory_new(1024);
-    mh_memory_write_string(&body, "\n");
 
     // Call the user defined function
     mh_http_api(&header, &body, &request);
@@ -38,7 +36,7 @@ void mh_http_connect(int sock, struct sockaddr_in addr) {
         // If there is a body, write the content length to prevent a "connection reset" problem
         if (body.buffer.ptr != NULL) {
             char content_header[50];
-            sprintf(content_header, "Content-Length: %zu\n", body.position-1);
+            sprintf(content_header, "Content-Length: %zu" CRLF CRLF, body.position);
             mh_memory_write_string(&header, content_header);
         }
         send(sock, header.buffer.ptr, header.position, 0);

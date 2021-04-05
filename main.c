@@ -11,13 +11,13 @@ void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request) {
            request->address.sin_port,request->method, request->header_count, request->url);
 
     // Send the status info
-    HEADER("HTTP/1.1 200 OK\n");
+    HEADER("HTTP/1.1 200 OK");
 
     // Send the content type
-    HEADER("Content-Type: text/html; charset=UTF-8\n");
+    HEADER("Content-Type: text/html; charset=UTF-8");
 
     // Close the connection
-    HEADER("Connection: close\n");
+    HEADER("Connection: close");
 
     // Best website of 2021
     ECHO("<h1>Hello, World!</h1>");

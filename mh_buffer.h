@@ -25,7 +25,7 @@ void mh_buffer_increase(mh_buffer* b, size_t size) {
     b->ptr = temp;
 }
 
-// Call the previous function, but instead of increasing it by a specific amonut you double it
+// Call the previous function, but instead of increasing it by a specific amount you double it
 void mh_buffer_double(mh_buffer* b) {
     mh_buffer_increase(b, b->size * 2);
 }
