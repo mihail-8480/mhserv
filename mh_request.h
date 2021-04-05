@@ -38,7 +38,6 @@ mh_request mh_request_new(int sock) {
             mh_trim(mh_read_until(sock, &memory, &offset, ' ', 1)),
             mh_trim(mh_read_until(sock, &memory, &offset, CRLF[0], 1))
     };
-
     // Read the headers
     char *header;
     size_t i = 0;
