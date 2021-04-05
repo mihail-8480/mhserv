@@ -43,7 +43,7 @@ mh_stream_t *mh_socket_stream_new(int socket) {
     stream->base.can_write = true;
     stream->base.write = mh_socket_stream_write;
 
-    // Override and enable seeking
+    // Set to null and disable seeking
     stream->base.can_seek = false;
     stream->base.seek = NULL;
     stream->base.get_position = NULL;
