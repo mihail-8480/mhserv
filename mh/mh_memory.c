@@ -2,8 +2,8 @@
 #include "mh_error.h"
 #define MEMORY_ERROR(x) mh_error_report("Memory error: " # x)
 
-mh_memory *mh_memory_new(size_t size, bool clear) {
-    mh_memory *mem = malloc(size);
+mh_memory_t *mh_memory_new(size_t size, bool clear) {
+    mh_memory_t *mem = malloc(size);
     mem->size = size;
     mem->offset = 0;
     if (clear) {
@@ -17,7 +17,7 @@ mh_memory *mh_memory_new(size_t size, bool clear) {
     return mem;
 }
 
-void mh_memory_resize(mh_memory *memory, size_t size) {
+void mh_memory_resize(mh_memory_t *memory, size_t size) {
     void *new = realloc(memory->address, size);
     if (new == NULL) {
         MEMORY_ERROR("Failed re-allocating memory.");
@@ -26,7 +26,11 @@ void mh_memory_resize(mh_memory *memory, size_t size) {
     memory->size = size;
 }
 
-void mh_memory_free(mh_memory *memory) {
+void mh_memory_free(mh_memory_t *memory) {
     free(memory->address);
     free(memory);
+}
+
+mh_memory_t mh_memory_reference(void *address, size_t size) {;
+    return (mh_memory_t){.address = address, .size = size, .offset = 0};
 }
