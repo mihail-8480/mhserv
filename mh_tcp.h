@@ -39,18 +39,16 @@ _Noreturn void mh_tcp(const uint16_t port, const int max_clients, mh_on_connect 
             .sin_addr.s_addr = INADDR_ANY,
             .sin_port = htons(port)
     };
-    socklen_t addrlen = sizeof address;
+    socklen_t addrLen = sizeof address;
 
     // If the socket isn't made, crash the program
     mh_error(socket_fd);
 
     // Set the socket options, if it fails, crash the program
-    int setsockopt_result = setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-    mh_error(!setsockopt_result);
+    mh_error(!setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)));
 
     // Bind the socket to the address specified earlier
-    int bind_result = bind(socket_fd, (struct sockaddr *)&address, addrlen);
-    mh_error(bind_result >= 0);
+    mh_error(bind(socket_fd, (struct sockaddr *)&address, addrLen) >= 0);
 
     // Start listening
     int sock = listen(socket_fd, max_clients);
@@ -59,7 +57,7 @@ _Noreturn void mh_tcp(const uint16_t port, const int max_clients, mh_on_connect 
     // Forever... (until the program crashes)
     while(true) {
         // Accept a client
-        int client = accept(socket_fd, (struct sockaddr *) &address, &addrlen);
+        int client = accept(socket_fd, (struct sockaddr *) &address, &addrLen);
         // If the client is invalid, crash the program
         mh_error(client >= 0);
         // Call the onConnect event function

@@ -10,3 +10,4 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <pthread.h>
+#define CRLF "\r\n"
