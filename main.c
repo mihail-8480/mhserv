@@ -9,6 +9,10 @@ void mh_http_api(mh_memory* header, mh_memory* body, mh_request* request) {
     // Print some useful info about the client
     printf("%s:%hu -> %s [%zu headers] `%s`\n", inet_ntoa(request->address.sin_addr),
            request->address.sin_port,request->method, request->header_count, request->url);
+    for (size_t i = 0; i < request->header_count; i++)
+    {
+        printf("H:`%s`\n",request->headers[i]);
+    }
 
     // Send the status info
     HEADER("HTTP/1.1 200 OK");

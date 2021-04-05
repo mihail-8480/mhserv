@@ -6,6 +6,7 @@
 
 #ifndef MHSERV_MH_REQUEST_H
 #define MHSERV_MH_REQUEST_H
+#define READ_AHEAD 1
 
 // The request structure
 typedef struct {
@@ -34,15 +35,15 @@ mh_request mh_request_new(int sock) {
 
     // Read the first line and make the request out of it
     mh_request request_top = {
-            mh_trim(mh_read_until(sock, &memory, &offset, ' ', 1)),
-            mh_trim(mh_read_until(sock, &memory, &offset, ' ', 1)),
-            mh_trim(mh_read_until(sock, &memory, &offset, CRLF[0], 1))
+            mh_trim(mh_read_until(sock, &memory, &offset, ' ', READ_AHEAD)),
+            mh_trim(mh_read_until(sock, &memory, &offset, ' ', READ_AHEAD)),
+            mh_trim(mh_read_until(sock, &memory, &offset, CRLF[0], READ_AHEAD))
     };
     // Read the headers
     char *header;
     size_t i = 0;
     do {
-        header = mh_trim(mh_read_until(sock, &memory, &offset, CRLF[0], 1));
+        header = mh_trim(mh_read_until(sock, &memory, &offset, CRLF[0], READ_AHEAD));
         mh_buffer_auto_double((i+1)*sizeof(char*),&headers);
         ((char**)headers.ptr)[i++] = header;
     } while (*header != '\0');
