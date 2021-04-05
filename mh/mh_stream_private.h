@@ -10,8 +10,8 @@
 
 typedef struct mh_stream_private {
     mh_stream_t base;
-    void (*write)(void* self, mh_memory* buffer, size_t count);
-    void (*read)(void* self, mh_memory* buffer, size_t count);
+    void (*write)(void* self, mh_memory_t* buffer, size_t count);
+    void (*read)(void* self, mh_memory_t* buffer, size_t count);
     void (*seek)(void* self, size_t position);
     void (*free)(void*self);
     size_t (*get_position)(void *self);

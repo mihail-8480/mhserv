@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <netdb.h>
 #include "mh_stream.h"
 #include "mh_stream_private.h"
 #include "mh_memory.h"
@@ -8,7 +9,7 @@ typedef struct {
     int socket;
 } mh_socket_stream_t;
 
-void mh_socket_stream_read(void* self, mh_memory* buffer, size_t count) {
+void mh_socket_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     mh_socket_stream_t* this = (mh_socket_stream_t*)self;
     ssize_t size = read(this->socket, buffer->address, count);
     if (size == -1) {
@@ -17,7 +18,7 @@ void mh_socket_stream_read(void* self, mh_memory* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_socket_stream_write(void* self, mh_memory* buffer, size_t count) {
+void mh_socket_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     mh_socket_stream_t* this = (mh_socket_stream_t*)self;
     ssize_t size = write(this->socket, buffer->address, count);
     if (size == -1) {
@@ -28,6 +29,7 @@ void mh_socket_stream_write(void* self, mh_memory* buffer, size_t count) {
 
 void mh_socket_stream_free(void* self) {
     mh_socket_stream_t* this = (mh_socket_stream_t*)self;
+    shutdown(this->socket, SHUT_WR);
     close(this->socket);
     free(self);
 }

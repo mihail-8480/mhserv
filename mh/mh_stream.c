@@ -9,7 +9,7 @@ bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
     return false;
 }
 
-void mh_stream_read(mh_stream_t *ptr, mh_memory* buffer, size_t count) {
+void mh_stream_read(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
     if (stream->can_read) {
         stream->read(stream, buffer, count);
@@ -21,7 +21,7 @@ void mh_stream_read(mh_stream_t *ptr, mh_memory* buffer, size_t count) {
     STREAM_ERROR("Failed reading from the stream.");
 }
 
-void mh_stream_write(mh_stream_t *ptr, mh_memory* buffer, size_t count) {
+void mh_stream_write(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
     if (stream->can_write) {
         stream->write(stream, buffer, count);
@@ -65,7 +65,7 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     }
 
     // try to NOT read everything at once...
-    mh_memory* buffer = mh_memory_new(size, false);
+    mh_memory_t* buffer = mh_memory_new(size, false);
     mh_stream_read(src, buffer, size);
     mh_stream_write(dest, buffer, buffer->offset);
     mh_memory_free(buffer);

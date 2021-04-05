@@ -4,11 +4,11 @@
 
 typedef struct {
     mh_stream_private_t base;
-    mh_memory* memory;
+    mh_memory_t* memory;
     bool fixed;
 } mh_memory_stream_t;
 
-void mh_memory_stream_read(void* self, mh_memory* buffer, size_t count) {
+void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     if (this->memory->offset + count > this->memory->size) {
         STREAM_ERROR("The memory you are trying to read is out of range.");
@@ -22,7 +22,7 @@ void mh_memory_stream_increase(mh_memory_stream_t* this, size_t minimal_size) {
     mh_memory_resize(this->memory, increase);
 }
 
-void mh_memory_stream_write(void* self, mh_memory* buffer, size_t count) {
+void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     if (this->memory->offset + count > this->memory->size) {
         if (this->fixed) {
@@ -56,7 +56,7 @@ void mh_memory_stream_free(void* self) {
 }
 
 
-mh_memory *mh_memory_stream_get_memory(mh_stream_t *stream) {
+mh_memory_t *mh_memory_stream_get_memory(mh_stream_t *stream) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)stream;
     return this->memory;
 }
