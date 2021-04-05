@@ -2,7 +2,7 @@
 #include "mh/mh_stream.h"
 const size_t copy_buffer_size = 128;
 const size_t max_request_size = 1024;
-
+#define ENDL "\r\n"
 // Why allocate stuff when you don't have to
 #define ECHO(str) write_string(socket_stream, str, sizeof(str)-1)
 static inline void write_string(mh_stream_t* stream, char* str, size_t len) {
@@ -26,10 +26,10 @@ void on_connect(int socket, mh_socket_address address) {
     } while(mh_stream_get_position(request) == mh_stream_get_size(request));
 
     // Write some stuff to the server
-    ECHO("HTTP/1.1 200 OK\r\n");
-    ECHO("Content-Type: text/html; charset=UTF-8\r\n");
-    ECHO("Connection: close\r\n");
-    ECHO("\r\n");
+    ECHO("HTTP/1.1 200 OK" ENDL);
+    ECHO("Content-Type: text/html; charset=UTF-8" ENDL);
+    ECHO("Connection: close" ENDL);
+    ECHO(ENDL);
     ECHO("<h1>Hello, World!</h1>");
 
     // Free the memory
