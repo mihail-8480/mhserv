@@ -80,10 +80,3 @@ size_t mh_memory_index_of(mh_memory_t *mem, char c) {
     }
     return -1;
 }
-
-void mh_memory_print(mh_memory_t memory) {
-    for(; memory.offset < memory.size; memory.offset++) {
-        putchar(((char*)memory.address)[memory.offset]);
-    }
-}
-

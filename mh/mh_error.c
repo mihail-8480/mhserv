@@ -1,4 +1,5 @@
 #include "mh_error.h"
+#include "mh_console.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -14,7 +15,8 @@ void mh_error_report(const char *error) {
         mh_reporter(error);
     } else {
         // Otherwise, print the error and crash the program
-        fprintf(stderr, "%s", error);
+        mh_internal_console = mh_internal_console.open();
+        mh_internal_console.error.write(error);
         abort();
     }
 }
