@@ -15,8 +15,7 @@ void mh_error_report(const char *error) {
         mh_reporter(error);
     } else {
         // Otherwise, print the error and crash the program
-        mh_internal_console = mh_internal_console.open();
-        mh_internal_console.error.write(error);
+        mh_console.error.write(error);
         abort();
     }
 }
