@@ -1,22 +1,6 @@
 #include "mh_tcp.h"
 #include "mh_error.h"
-#include "mh_tasks.h"
 #include <signal.h>
-
-// The structure that gets passed to the task
-typedef struct {
-    mh_on_connect on_connect;
-    int client;
-    struct sockaddr_in address;
-} mh_con_task_args;
-
-void* mh_tcp_connected_async(void* args) {
-    // Create a new thread using mh_tasks and do the client handling on that thread
-    mh_con_task_args* con_args = args;
-    con_args->on_connect(con_args->client, con_args->address);
-    free(args);
-    return NULL;
-}
 
 void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect on_connect) {
     // Ignore broken pipes
@@ -51,14 +35,6 @@ void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect on_c
         int client = accept(socket_fd, (struct sockaddr *) &address, &addrLen);
         // If the client is invalid, crash the program
         mh_error_report_internal(client >= 0);
-
-        // Call the on_connect function pointer on an other thread
-        mh_con_task_args* args = malloc(sizeof(mh_con_task_args));
-        args->on_connect = on_connect;
-        args->address = address;
-        args->client = client;
-        mh_task_t* task = mh_task_create(mh_tcp_connected_async, args, true);
-        mh_task_run(task);
+        on_connect(client, address);
     }
-
 }
