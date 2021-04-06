@@ -1,6 +1,7 @@
 #include "mh_tasks.h"
 
-void mh_task_destroy(mh_task mh_task) {
+void mh_task_free(void * ptr) {
+    mh_task mh_task = (mh_task_t*)ptr;
     // Destroy the used memory of a task
     if (mh_task->result != NULL)
         free(mh_task->result);
@@ -48,6 +49,7 @@ mh_task mh_task_create(action_t action, mh_task_args_t args, bool destroy_result
     // Create a new task (i should probably use malloc here)
     mh_task mh_task = calloc(1,sizeof(mh_task_t));
     *mh_task = (mh_task_t){
+            .destructor = mh_task_free,
             .args = args,
             .action = action,
             .destroy_result = destroy_result

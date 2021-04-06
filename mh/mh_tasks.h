@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "mh_destructor.h"
 
 // Fucking bullshit :)
 typedef void* mh_task_result_t;
@@ -17,6 +18,7 @@ typedef mh_task_result_t (*action_t)(mh_task_args_t);
 
 // The task structure
 typedef struct mh_task {
+    mh_destructor_t destructor;
     void* args;
     void* result;
     action_t action;
@@ -36,8 +38,5 @@ mh_task_result_t mh_task_wait(mh_task mh_task);
 
 // Have a task return something
 mh_task_result_t mh_task_return(void* value, size_t size);
-
-// Destroy a task
-void mh_task_destroy(mh_task mh_task);
 
 #endif //MHSERV_MH_TASKS_H

@@ -3,9 +3,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "mh_memory.h"
+#include "mh_destructor.h"
 
 // The memory stream structure
 typedef struct mh_stream {
+    mh_destructor_t destructor;
     // It should be empty
 } mh_stream_t;
 
@@ -32,9 +34,6 @@ size_t mh_stream_get_position(mh_stream_t *stream);
 
 // Get the stream's size
 size_t mh_stream_get_size(mh_stream_t *stream);
-
-// Cleanup all the resources related to the stream
-void mh_stream_free(mh_stream_t *stream);
 
 // Copy bytes from one stream to an other
 void mh_stream_copy_to(mh_stream_t* dest, mh_stream_t* src, size_t size);

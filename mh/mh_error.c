@@ -26,3 +26,9 @@ void mh_error_report_internal(bool cond) {
         mh_error_report("An internal error was reported.");
     }
 }
+
+void mh_error_report_safe(const char *error, mh_destructor_t *destructor) {
+    // Free the memory and report the error
+    mh_destructor_free(destructor);
+    mh_error_report(error);
+}

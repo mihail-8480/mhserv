@@ -53,7 +53,7 @@ void mh_socket_stream_free(void* self) {
 
 mh_stream_t *mh_socket_stream_new(int socket) {
     mh_socket_stream_t* stream = malloc(sizeof(mh_socket_stream_t));
-    stream->base.free = mh_socket_stream_free;
+    stream->base.base.destructor.free = mh_socket_stream_free;
 
     // Override and enable reading
     stream->base.can_read = true;
