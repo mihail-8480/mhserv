@@ -1,8 +1,5 @@
-#include <unistd.h>
-#include <wait.h>
 #include "mh/mh_tcp.h"
 #include "mh/mh_http.h"
-#include "mh/mh_error.h"
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Send the headers
