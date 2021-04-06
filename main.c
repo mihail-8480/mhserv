@@ -2,7 +2,6 @@
 #include "mh/mh_http.h"
 
 #include <arpa/inet.h>
-#include <stdio.h>
 
 void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) {
 

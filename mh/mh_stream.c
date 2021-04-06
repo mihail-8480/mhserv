@@ -92,3 +92,17 @@ size_t mh_stream_write_reference(mh_stream_t *stream, void *ptr, size_t size) {
     mh_stream_write(stream, &memory, memory.size);
     return memory.offset;
 }
+
+mh_console_t mh_console_new(void) {
+    mh_console_t console;
+    console.out = mh_socket_stream_new(stdout->_fileno);
+    console.in = mh_socket_stream_new(stdin->_fileno);
+    console.err = mh_socket_stream_new(stderr->_fileno);
+    // Disable reading from stdin and stderr
+    ((mh_stream_private_t*)console.out)->can_read = false;
+    ((mh_stream_private_t*)console.err)->can_read = false;
+    // Disable writing to stdin
+    ((mh_stream_private_t*)console.in)->can_write = false;
+    return console;
+
+}
