@@ -4,12 +4,20 @@
 #include "mh_destructor.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 // The memory stream structure
 typedef struct mh_stream {
     mh_destructor_t destructor;
     // It should be empty
 } mh_stream_t;
+
+typedef struct mh_console {
+    mh_stream_t* out;
+    mh_stream_t* in;
+    mh_stream_t* err;
+
+} mh_console_t;
 
 // Create a new memory stream
 mh_stream_t* mh_memory_stream_new(size_t size, bool fixed);
@@ -18,7 +26,7 @@ mh_stream_t* mh_memory_stream_new(size_t size, bool fixed);
 mh_memory_t* mh_memory_stream_get_memory(mh_stream_t* stream);
 
 // Create a new socket stream (will probably work with normal file descriptors too)
-mh_stream_t* mh_socket_stream_new(int sock);
+    mh_stream_t* mh_socket_stream_new(int sock);
 
 // Move the stream's position, if it returns false it means it failed
 bool mh_stream_seek(mh_stream_t* stream, size_t position);
@@ -40,5 +48,8 @@ void mh_stream_copy_to(mh_stream_t* dest, mh_stream_t* src, size_t size);
 
 // Write a string to a stream without copying it, return how many bytes were actually written
 size_t mh_stream_write_reference(mh_stream_t* stream, void* ptr, size_t size);
+
+// Create the standard streams
+mh_console_t mh_console_new(void);
 
 #endif //MHSERV_MH_STREAM_H

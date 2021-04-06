@@ -34,6 +34,7 @@ mh_memory_t *mh_memory_new(size_t size, bool clear) {
 }
 
 void mh_memory_resize(mh_memory_t *memory, size_t size) {
+    if (size <= memory->size) return;
     // Reallocate to a new pointer to avoid memory leaks on error
     void *new = realloc(memory->address, size);
 
