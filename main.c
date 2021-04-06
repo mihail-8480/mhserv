@@ -13,13 +13,7 @@ bool finish_reading_post = false;
 
 
 // Why allocate stuff when you don't have to
-#define ECHO(str) write_string(socket_stream, str, sizeof(str)-1)
-
-// Write a string to a stream without copying it
-static inline void write_string(mh_stream_t* stream, char* str, size_t len) {
-    mh_memory_t memory = mh_memory_reference(str, len);
-    mh_stream_write(stream, &memory, memory.size);
-}
+#define ECHO(str) mh_stream_write_reference(socket_stream, str, sizeof(str)-1)
 
 // Figure out where the end of the header is
 static inline size_t end_of_headers(mh_memory_t* mem) {
@@ -69,7 +63,7 @@ void on_connect(int socket, mh_socket_address address) {
         mh_error_report("Could not find end of header request.");
     }
 
-    // Split the memory into header and post
+    // Split the request memory into header and post
     mh_memory_t header = mh_memory_reference(req_mem->address, req_mem->offset - (req_mem->offset - header_end));
     mh_memory_t post = mh_memory_reference(req_mem->address + header_end, req_mem->offset - header_end);
 
@@ -87,7 +81,7 @@ void on_connect(int socket, mh_socket_address address) {
     ECHO("Content-Type: text/html; charset=UTF-8" ENDL);
     ECHO("Connection: close" ENDL);
     ECHO(ENDL);
-    ECHO("<h1>KEKW</h1>");
+    ECHO("<h1>KEK</h1>");
 
     // Free the memory
     mh_stream_free(socket_stream);

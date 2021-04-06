@@ -89,3 +89,11 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     mh_stream_write(dest, buffer, buffer->offset);
     mh_memory_free(buffer);
 }
+
+size_t mh_stream_write_reference(mh_stream_t *stream, void *ptr, size_t size) {
+    // Create a memory reference
+    mh_memory_t memory = mh_memory_reference(ptr, size);
+    // Write to the stream
+    mh_stream_write(stream, &memory, memory.size);
+    return memory.offset;
+}
