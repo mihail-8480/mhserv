@@ -1,9 +1,9 @@
 #ifndef MHSERV_MH_STREAM_H
 #define MHSERV_MH_STREAM_H
-#include <stdbool.h>
-#include <stdlib.h>
 #include "mh_memory.h"
 #include "mh_destructor.h"
+#include <stdbool.h>
+#include <stdlib.h>
 
 // The memory stream structure
 typedef struct mh_stream {

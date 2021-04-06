@@ -1,11 +1,11 @@
 #ifndef MHSERV_MH_TASKS_H
 #define MHSERV_MH_TASKS_H
 
+#include "mh_destructor.h"
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mh_destructor.h"
 
 // An action that is executed by a task
 typedef void* (*action_t)(void*);

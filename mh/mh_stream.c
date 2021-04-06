@@ -1,5 +1,6 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
+#include "mh_destructor.h"
 bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
 
@@ -81,7 +82,7 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     mh_memory_t* buffer = mh_memory_new(size, false);
     mh_stream_read(src, buffer, size);
     mh_stream_write(dest, buffer, buffer->offset);
-    mh_memory_free(buffer);
+    mh_destructor_free(buffer);
 }
 
 size_t mh_stream_write_reference(mh_stream_t *stream, void *ptr, size_t size) {
