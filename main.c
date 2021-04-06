@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "mh/mh_tcp.h"
 #include "mh/mh_stream.h"
 #include "mh/mh_error.h"
@@ -31,6 +32,34 @@ static inline size_t end_of_headers(mh_memory_t* mem) {
         }
     }
     return 0;
+}
+
+
+static inline void parse_request_header(mh_memory_t* header) {
+    // Read the request method
+    char *method = mh_memory_read_until(header, ' ');
+    printf("Method=`%s`\n", method);
+    free(method);
+
+    // Read the URL
+    char *url = mh_memory_read_until(header, ' ');
+    printf("URL=`%s`\n", url);
+    free(url);
+
+    // Read the HTTP version
+    char *version = mh_memory_read_until(header, '\r');
+    printf("Version=`%s`\n", version);
+    free(version);
+
+    // Skip the \n
+    header->offset++;
+
+    // Read the headers
+    for (char *single = NULL; (single = mh_memory_read_until(header, '\r')) != NULL; header->offset++) {
+        printf("H`%s`\n", single);
+        free(single);
+    }
+
 }
 
 void on_connect(int socket, mh_socket_address address) {
@@ -66,6 +95,7 @@ void on_connect(int socket, mh_socket_address address) {
     // If you didn't encounter the header's end for some reason, complain
     if (request_header_end == 0) {
         mh_error_report_safe("Could not find end of header in request_stream.", destructor);
+        return;
     }
 
     // Split the request_stream memory into header and post
@@ -80,6 +110,8 @@ void on_connect(int socket, mh_socket_address address) {
         }
         post = mh_memory_reference(request_memory->address + request_header_end, request_memory->offset - request_header_end);
     }
+
+    parse_request_header(&header);
 
     // Write some stuff to the server
     ECHO("HTTP/1.1 200 OK" ENDL);
