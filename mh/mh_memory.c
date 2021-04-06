@@ -4,11 +4,19 @@
 // Report a memory error
 #define MEMORY_ERROR(x) mh_error_report("Memory error: " # x)
 
+void mh_memory_free(void* memory) {
+    // Free the memory
+    free(((mh_memory_t*)memory)->address);
+    free(memory);
+}
+
+
 mh_memory_t *mh_memory_new(size_t size, bool clear) {
     // Allocate the memory container and set it's fields
     mh_memory_t *mem = malloc(size);
     mem->size = size;
     mem->offset = 0;
+    mem->destructor.free = mh_memory_free;
 
     // If clear is true use calloc (zero-everything)
     if (clear) {
@@ -37,13 +45,6 @@ void mh_memory_resize(mh_memory_t *memory, size_t size) {
     // Set the new address and size
     memory->address = new;
     memory->size = size;
-}
-
-
-void mh_memory_free(mh_memory_t *memory) {
-    // Free the memory
-    free(memory->address);
-    free(memory);
 }
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {

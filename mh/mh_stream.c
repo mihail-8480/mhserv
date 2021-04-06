@@ -64,12 +64,6 @@ size_t mh_stream_get_size(mh_stream_t *ptr) {
     return -1;
 }
 
-void mh_stream_free(mh_stream_t *ptr) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
-    // Hopefully free all the resources used by the stream
-    stream->free(stream);
-}
-
 void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     mh_stream_private_t* src_stream = (mh_stream_private_t*)src;
     mh_stream_private_t* dest_stream = (mh_stream_private_t*)dest;

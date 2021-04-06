@@ -38,6 +38,11 @@ void on_connect(int socket, mh_socket_address address) {
     mh_stream_t* socket_stream = mh_socket_stream_new(socket);
     mh_stream_t* request_stream = mh_memory_stream_new(copy_buffer_size, false);
 
+    // Create a destructor array
+    mh_destructor_t* destructor = mh_destructor_array_new((mh_destructor_t*[]) {
+        &socket_stream->destructor,
+        &request_stream->destructor }, 2);
+
     // Get the request_stream stream's memory
     mh_memory_t* request_memory = mh_memory_stream_get_memory(request_stream);
 
@@ -60,7 +65,7 @@ void on_connect(int socket, mh_socket_address address) {
 
     // If you didn't encounter the header's end for some reason, complain
     if (request_header_end == 0) {
-        mh_error_report("Could not find end of header request_stream.");
+        mh_error_report_safe("Could not find end of header in request_stream.", destructor);
     }
 
     // Split the request_stream memory into header and post
@@ -84,8 +89,7 @@ void on_connect(int socket, mh_socket_address address) {
     ECHO("<h1>KEK</h1>");
 
     // Free the memory
-    mh_stream_free(socket_stream);
-    mh_stream_free(request_stream);
+    mh_destructor_free(destructor);
 }
 int main(void) {
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method

@@ -66,7 +66,7 @@ size_t mh_memory_stream_get_size(void* self) {
 void mh_memory_stream_free(void* self) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     // Free the internal buffer
-    mh_memory_free(this->memory);
+    mh_destructor_free(this->memory);
     // Free the resources used by the stream structure
     free(self);
 }
@@ -81,7 +81,7 @@ mh_memory_t *mh_memory_stream_get_memory(mh_stream_t *stream) {
 
 mh_stream_t *mh_memory_stream_new(size_t size, bool fixed) {
     mh_memory_stream_t* stream = malloc(sizeof(mh_memory_stream_t));
-    stream->base.free = mh_memory_stream_free;
+    stream->base.base.destructor.free = mh_memory_stream_free;
 
     // Override and enable reading
     stream->base.can_read = true;
