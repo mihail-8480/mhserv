@@ -18,13 +18,9 @@ mh_task_result_t mh_tcp_connected_async(mh_task_args_t args) {
     return NULL;
 }
 
-void do_nothing() {
-    // Really.
-}
 void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect on_connect) {
     // Ignore broken pipes
-    signal(SIGPIPE, do_nothing);
-
+    signal(SIGPIPE, SIG_IGN);
     // Create a new TCP socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     int opt = 1;
