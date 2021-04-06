@@ -1,35 +1,26 @@
-#include "include.h"
+#include <signal.h>
+#include "mh_tcp.h"
 #include "mh_error.h"
 #include "mh_tasks.h"
-#ifndef MHSERV_MH_TCP_H
-#define MHSERV_MH_TCP_H
 
-// A function pointer for the function that gets called when a client connects to the server
-typedef void (*mh_on_connect)(int, struct sockaddr_in);
-
-// Does nothing.
-void do_nothing(){
-    // Really.
-}
-
+// The structure that gets passed to the task
 typedef struct {
-    mh_on_connect onConnect;
+    mh_on_connect on_connect;
     int client;
     struct sockaddr_in address;
 } mh_con_task_args;
 
-mh_task_result_t mh_tcp_connected_async(mh_task_args_t args) {
+void* mh_tcp_connected_async(void* args) {
+    // Create a new thread using mh_tasks and do the client handling on that thread
     mh_con_task_args* con_args = args;
-    con_args->onConnect(con_args->client, con_args->address);
+    con_args->on_connect(con_args->client, con_args->address);
     free(args);
     return NULL;
 }
 
-// Create and start listening in TCP
-_Noreturn void mh_tcp(const uint16_t port, const int max_clients, mh_on_connect onConnect) {
+void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect on_connect) {
     // Ignore broken pipes
-    signal(SIGPIPE, do_nothing);
-
+    signal(SIGPIPE, SIG_IGN);
     // Create a new TCP socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     int opt = 1;
@@ -42,36 +33,32 @@ _Noreturn void mh_tcp(const uint16_t port, const int max_clients, mh_on_connect 
     socklen_t addrLen = sizeof address;
 
     // If the socket isn't made, crash the program
-    mh_error(socket_fd);
+    mh_error_report_internal(socket_fd);
 
     // Set the socket options, if it fails, crash the program
-    mh_error(!setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)));
+    mh_error_report_internal(!setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)));
 
     // Bind the socket to the address specified earlier
-    mh_error(bind(socket_fd, (struct sockaddr *)&address, addrLen) >= 0);
+    mh_error_report_internal(bind(socket_fd, (struct sockaddr *)&address, addrLen) >= 0);
 
     // Start listening
     int sock = listen(socket_fd, max_clients);
-    mh_error(sock >= 0);
+    mh_error_report_internal(sock >= 0);
 
     // Forever... (until the program crashes)
     while(true) {
         // Accept a client
         int client = accept(socket_fd, (struct sockaddr *) &address, &addrLen);
         // If the client is invalid, crash the program
-        mh_error(client >= 0);
-        // Call the onConnect event function
-#ifndef MH_ASYNC
-        onConnect(client, address);
-#else
+        mh_error_report_internal(client >= 0);
+
+        // Call the on_connect function pointer on an other thread
         mh_con_task_args* args = malloc(sizeof(mh_con_task_args));
-        args->onConnect = onConnect;
+        args->on_connect = on_connect;
         args->address = address;
         args->client = client;
-        mh_task task = mh_task_create(mh_tcp_connected_async, args, true);
+        mh_task_t* task = mh_task_create(mh_tcp_connected_async, args, true);
         mh_task_run(task);
-#endif
     }
 
 }
-#endif //MHSERV_MH_TCP_H
