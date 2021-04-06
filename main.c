@@ -1,7 +1,6 @@
 #include "mh/mh_console.h"
 #include "mh/mh_tcp.h"
 #include "mh/mh_http.h"
-#include "mh/mh_error.h"
 
 void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Write some stuff to the server
@@ -13,8 +12,6 @@ void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) 
 }
 
 int main(void) {
-    mh_console.output.write("Test");
-    mh_error_report("TEST");
     // Set the request handler
     mh_http_set_request_handler(my_request_handler);
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
