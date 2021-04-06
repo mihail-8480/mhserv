@@ -1,7 +1,6 @@
 #include "mh_memory.h"
 #include "mh_error.h"
 
-#include <stdio.h>
 // Report a memory error
 #define MEMORY_ERROR(x) mh_error_report("Memory error: " # x)
 
@@ -13,7 +12,11 @@ void mh_memory_free(void* memory) {
 
 mh_memory_t *mh_memory_new(size_t size, bool clear) {
     // Allocate the memory container and set it's fields
-    mh_memory_t *mem = malloc(size);
+    mh_memory_t *mem = malloc(sizeof(mh_memory_t));
+    if (mem == NULL) {
+        MEMORY_ERROR("Failed creating object.");
+        return NULL;
+    }
     mem->size = size;
     mem->offset = 0;
     mem->destructor.free = mh_memory_free;
@@ -28,13 +31,18 @@ mh_memory_t *mh_memory_new(size_t size, bool clear) {
 
     // If the memory wasn't properly allocated, report the error
     if (mem->address == NULL) {
+        free(mem);
         MEMORY_ERROR("Failed allocating memory.");
+        return NULL;
     }
     return mem;
 }
 
 void mh_memory_resize(mh_memory_t *memory, size_t size) {
-    if (size <= memory->size) return;
+    // A re-alloc isn't needed if the size is smaller than the memory size
+    if (size <= memory->size) {
+        return;
+    }
     // Reallocate to a new pointer to avoid memory leaks on error
     void *new = realloc(memory->address, size);
 
