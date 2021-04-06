@@ -6,8 +6,10 @@
 #include <string.h>
 #include <stdio.h>
 
+// Report a stream error
 #define STREAM_ERROR(x) mh_error_report("Stream error: " # x)
 
+// The private stream structure, it contains all the methods required for a stream implementation
 typedef struct mh_stream_private {
     mh_stream_t base;
     void (*write)(void* self, mh_memory_t* buffer, size_t count);
