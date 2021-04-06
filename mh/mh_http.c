@@ -15,7 +15,7 @@ void mh_http_request_free(void *ptr) {
     free(self);
 }
 
-mh_http_request_t *mh_http_request_new(mh_socket_address address, mh_memory_t *header) {
+mh_http_request_t *mh_http_request_new(mh_socket_address_t address, mh_memory_t *header) {
     mh_http_request_t* request = calloc(1, sizeof(mh_http_request_t));
 
     // Read the request method
@@ -77,7 +77,7 @@ http_request_handler_t http_request_handler = NULL;
 void mh_http_set_request_handler(http_request_handler_t request_handler) {
     http_request_handler = request_handler;
 }
-void mh_http(int socket, mh_socket_address address) {
+void mh_http(int socket, mh_socket_address_t address) {
     if (http_request_handler == NULL) {
         close(socket);
         mh_error_report("A request handler is not set.");
