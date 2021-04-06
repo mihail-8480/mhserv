@@ -1,5 +1,8 @@
+#include <unistd.h>
+#include <wait.h>
 #include "mh/mh_tcp.h"
 #include "mh/mh_http.h"
+#include "mh/mh_error.h"
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Send the headers
@@ -19,7 +22,7 @@ void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) 
     // Currently it only sends a 404
     // TODO: Add a hashmap for headers
     // TODO: Implement threading again
-    // TODO: Make all the user exceptions free the used memory
+    // TODO: Make all the user exceptions free the used memory and recover
     generate_404(socket_stream, request);
 }
 
