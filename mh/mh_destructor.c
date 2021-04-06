@@ -11,16 +11,16 @@ typedef struct mh_destructor_array {
 void mh_destructor_free(void *ptr) {
     mh_destructor_t *self = (mh_destructor_t*)ptr;
     // Call the free method
-    self->free(self);
+    if (self != NULL && self->free != NULL) {
+        self->free(self);
+    }
 }
 
 void mh_destructor_array_free(void* ptr) {
     mh_destructor_array_t* self = (mh_destructor_array_t*)ptr;
     // Call every destructor
     for(size_t i = 0; i < self->length; i++) {
-        if (self->array[i] != NULL) {
             mh_destructor_free(self->array[i]);
-        }
     }
     free(ptr);
 }

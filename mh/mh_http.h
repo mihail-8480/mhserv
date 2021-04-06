@@ -8,10 +8,10 @@
 
 typedef struct mh_http_request {
     mh_destructor_t destructor;
-    char *method;
-    char *url;
-    char *version;
-    char **headers;
+    mh_memory_t method;
+    mh_memory_t url;
+    mh_memory_t version;
+    mh_memory_t *headers;
     size_t headers_count;
     mh_socket_address address;
     mh_memory_t content;

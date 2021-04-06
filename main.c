@@ -4,13 +4,19 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 
-
 void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) {
-    // Print the request information
-    printf("%s:%hu -> %s [%zu headers] `%s`\n", inet_ntoa(request->address.sin_addr),
-           request->address.sin_port,request->method, request->headers_count, request->url);
-    for (size_t i = 0; i < request->headers_count; i++)
-        printf("H:`%s`\n",request->headers[i]);
+
+    printf("%s:%hu -> ", inet_ntoa(request->address.sin_addr),request->address.sin_port);
+    mh_memory_print(request->method);
+    printf(" [%zu headers] `", request->headers_count);
+    mh_memory_print(request->url);
+    printf("`\n");
+
+    for (size_t i = 0; i < request->headers_count; i++) {
+        printf("H:`");
+        mh_memory_print(request->headers[i]);
+        printf("`\n");
+    }
 
     printf("Request content length: %zu\n", request->content.size);
 

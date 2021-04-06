@@ -11,13 +11,7 @@ const size_t mh_http_max_request_size = 16384;
 
 void mh_http_request_free(void *ptr) {
     mh_http_request_t* self = (mh_http_request_t*)ptr;
-    for(size_t i = 0; i < self->headers_count; i++) {
-        free(self->headers[i]);
-    }
     free(self->headers);
-    free(self->version);
-    free(self->url);
-    free(self->method);
     free(self);
 }
 
@@ -25,32 +19,32 @@ mh_http_request_t *mh_http_request_new(mh_socket_address address, mh_memory_t *h
     mh_http_request_t* request = calloc(1, sizeof(mh_http_request_t));
 
     // Read the request method
-    char *method = mh_memory_read_until(header, ' ');
+    mh_memory_t method = mh_memory_read_until(header, ' ');
 
     // Read the URL
-    char *url = mh_memory_read_until(header, ' ');
+    mh_memory_t url = mh_memory_read_until(header, ' ');
 
     // Read the HTTP version
-    char *version = mh_memory_read_until(header, '\r');
+    mh_memory_t version = mh_memory_read_until(header, '\r');
 
     // Skip the \n
     header->offset++;
 
-    mh_memory_t *memory = mh_memory_new(sizeof(char*)*16, true);
+    mh_memory_t *memory = mh_memory_new(sizeof(mh_memory_t)*16, true);
     // Read the headers
     size_t count = 0;
-    for (char *single = NULL; (single = mh_memory_read_until(header, '\r')) != NULL; header->offset++, count++) {
-        if (memory->size/sizeof(char*) < count + 1) {
+    for (mh_memory_t single; (single = mh_memory_read_until(header, '\r')).size != 0; header->offset++, count++) {
+        if (memory->size/sizeof(mh_memory_t) < count + 1) {
             mh_memory_resize(memory, memory->size*2);
         }
-        ((char**)memory->address)[count] = single;
+        ((mh_memory_t*)memory->address)[count] = single;
     }
     *request = (mh_http_request_t) {
             .address = address,
             .method = method,
             .url = url,
             .version = version,
-            .headers = (char**)memory->address,
+            .headers = (mh_memory_t*)memory->address,
             .headers_count = count,
             .destructor = mh_http_request_free
     };
@@ -133,7 +127,7 @@ void mh_http(int socket, mh_socket_address address) {
 
 
     // If you are supposed to, read the entire post request_stream
-    if (strcmp(request->method, "POST") == 0) {
+    if (memcmp(request->method.address, "POST", request->method.size) == 0) {
         while (request_memory->offset == iterations * mh_http_copy_buffer_size) {
             iterations++;
             mh_stream_copy_to(request_stream, socket_stream, mh_http_copy_buffer_size);

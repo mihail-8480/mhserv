@@ -1,7 +1,7 @@
-#include <signal.h>
 #include "mh_tcp.h"
 #include "mh_error.h"
 #include "mh_tasks.h"
+#include <signal.h>
 
 // The structure that gets passed to the task
 typedef struct {

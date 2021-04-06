@@ -1,7 +1,7 @@
-#include <string.h>
 #include "mh_memory.h"
 #include "mh_error.h"
 
+#include <stdio.h>
 // Report a memory error
 #define MEMORY_ERROR(x) mh_error_report("Memory error: " # x)
 
@@ -49,22 +49,23 @@ void mh_memory_resize(mh_memory_t *memory, size_t size) {
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
-    return (mh_memory_t){.address = address, .size = size, .offset = 0};
+    return (mh_memory_t){.address = address, .size = size, .offset = 0, .destructor.free = NULL};
 }
 
-char *mh_memory_read_until(mh_memory_t *mem, char c) {
+mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {
 
     // Copy the memory into a c-string from the current offset, to the index of the character
     size_t index = mh_memory_index_of(mem,c);
-    if (index == -1) return NULL;
+    if (index == -1) {
+        return mh_memory_reference(NULL, 0);
+    }
     size_t size = index-mem->offset;
-    char *value = malloc(size+1);
-    memcpy(value, mem->address+mem->offset, size);
-    value[size] = 0;
+
+    mh_memory_t ref = mh_memory_reference(mem->address+mem->offset, size);
 
     // Move the offset forward
     mem->offset += size+1;
-    return value;
+    return ref;
 }
 
 size_t mh_memory_index_of(mh_memory_t *mem, char c) {
@@ -78,3 +79,10 @@ size_t mh_memory_index_of(mh_memory_t *mem, char c) {
     }
     return -1;
 }
+
+void mh_memory_print(mh_memory_t memory) {
+    for(; memory.offset < memory.size; memory.offset++) {
+        putchar(((char*)memory.address)[memory.offset]);
+    }
+}
+

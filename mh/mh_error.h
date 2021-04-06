@@ -1,8 +1,7 @@
 #ifndef MHSERV_MH_ERROR_H
 #define MHSERV_MH_ERROR_H
-
-#include <stdbool.h>
 #include "mh_destructor.h"
+#include <stdbool.h>
 
 // The error reporter function pointer type
 typedef void (*mh_error_reporter)(const char* error);
