@@ -17,6 +17,9 @@ void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
 
 void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Currently it only sends a 404
+    // TODO: Add a hashmap for headers
+    // TODO: Implement threading again
+    // TODO: Make all the user exceptions free the used memory
     generate_404(socket_stream, request);
 }
 
