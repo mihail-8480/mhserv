@@ -36,44 +36,44 @@ static inline size_t end_of_headers(mh_memory_t* mem) {
 void on_connect(int socket, mh_socket_address address) {
     // Create the streams
     mh_stream_t* socket_stream = mh_socket_stream_new(socket);
-    mh_stream_t* request = mh_memory_stream_new(copy_buffer_size, false);
+    mh_stream_t* request_stream = mh_memory_stream_new(copy_buffer_size, false);
 
-    // Get the request stream's memory
-    mh_memory_t* req_mem = mh_memory_stream_get_memory(request);
+    // Get the request_stream stream's memory
+    mh_memory_t* request_memory = mh_memory_stream_get_memory(request_stream);
 
     // This is the offset where the header ends
-    size_t header_end;
+    size_t request_header_end;
 
-    // Read from the client until you encounter the header's end or until you hit the max request size limit
+    // Read from the client until you encounter the header's end or until you hit the max request_stream size limit
     size_t iterations = 0;
     do {
         iterations++;
-        mh_stream_copy_to(request, socket_stream, copy_buffer_size);
-        header_end = end_of_headers(req_mem);
-        if (header_end != 0) {
+        mh_stream_copy_to(request_stream, socket_stream, copy_buffer_size);
+        request_header_end = end_of_headers(request_memory);
+        if (request_header_end != 0) {
             break;
         }
-        if (req_mem->size >= max_request_size) {
+        if (request_memory->size >= max_request_size) {
             break;
         }
-    } while(req_mem->offset == iterations * copy_buffer_size);
+    } while(request_memory->offset == iterations * copy_buffer_size);
 
     // If you didn't encounter the header's end for some reason, complain
-    if (header_end == 0) {
-        mh_error_report("Could not find end of header request.");
+    if (request_header_end == 0) {
+        mh_error_report("Could not find end of header request_stream.");
     }
 
-    // Split the request memory into header and post
-    mh_memory_t header = mh_memory_reference(req_mem->address, req_mem->offset - (req_mem->offset - header_end));
-    mh_memory_t post = mh_memory_reference(req_mem->address + header_end, req_mem->offset - header_end);
+    // Split the request_stream memory into header and post
+    mh_memory_t header = mh_memory_reference(request_memory->address, request_memory->offset - (request_memory->offset - request_header_end));
+    mh_memory_t post = mh_memory_reference(request_memory->address + request_header_end, request_memory->offset - request_header_end);
 
-    // If you are supposed to, read the entire post request
+    // If you are supposed to, read the entire post request_stream
     if (finish_reading_post) {
-        while (req_mem->offset == iterations * copy_buffer_size) {
+        while (request_memory->offset == iterations * copy_buffer_size) {
             iterations++;
-            mh_stream_copy_to(request, socket_stream, copy_buffer_size);
+            mh_stream_copy_to(request_stream, socket_stream, copy_buffer_size);
         }
-        post = mh_memory_reference(req_mem->address + header_end, req_mem->offset - header_end);
+        post = mh_memory_reference(request_memory->address + request_header_end, request_memory->offset - request_header_end);
     }
 
     // Write some stuff to the server
@@ -85,7 +85,7 @@ void on_connect(int socket, mh_socket_address address) {
 
     // Free the memory
     mh_stream_free(socket_stream);
-    mh_stream_free(request);
+    mh_stream_free(request_stream);
 }
 int main(void) {
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
