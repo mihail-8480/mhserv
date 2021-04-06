@@ -13,10 +13,10 @@ typedef struct mh_http_request {
     mh_memory_t version;
     mh_memory_t *headers;
     size_t headers_count;
-    mh_socket_address address;
+    mh_socket_address_t address;
     mh_memory_t content;
 } mh_http_request_t;
-mh_http_request_t* mh_http_request_new(mh_socket_address address, mh_memory_t* header);
+mh_http_request_t* mh_http_request_new(mh_socket_address_t address, mh_memory_t* header);
 
 #define ENDL "\r\n"
 
@@ -26,7 +26,7 @@ mh_http_request_t* mh_http_request_new(mh_socket_address address, mh_memory_t* h
 #define READ(stream, mem, count) mh_stream_read(stream, mem, count)
 
 // The HTTP protocol
-void mh_http(int socket, mh_socket_address address);
+void mh_http(int socket, mh_socket_address_t address);
 
 typedef void (*http_request_handler_t)(mh_stream_t *socket_stream, mh_http_request_t *request);
 
