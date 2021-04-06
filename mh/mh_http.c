@@ -54,7 +54,7 @@ mh_http_request_t *mh_http_request_new(mh_socket_address address, mh_memory_t *h
 }
 
 
-// Figure out where the end of the header is
+// Figure _out where the end of the header is
 size_t http_find_end_of_headers(mh_memory_t *mem) {
     // Turn the memory into a character array
     char* str = (char*)mem->address;
@@ -113,7 +113,7 @@ void mh_http(int socket, mh_socket_address address) {
 
     // If you didn't encounter the header's end for some reason, complain
     if (request_header_end == 0) {
-        mh_error_report_safe("Could not find end of header in request_stream.", destructor);
+        mh_error_report_safe("Could not find end of header _in request_stream.", destructor);
         return;
     }
 

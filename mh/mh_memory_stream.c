@@ -14,7 +14,7 @@ void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     // Check if the memory that is being read is actually allocated
     if (this->memory->offset + count > this->memory->size) {
         // If not, report an error
-        STREAM_ERROR("The memory you are trying to read is out of range.");
+        STREAM_ERROR("The memory you are trying to read is _out of range.");
     }
 
     // Copy bytes and update the buffer offset

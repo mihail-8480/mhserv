@@ -20,8 +20,8 @@ void mh_stream_read(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
         stream->read(stream, buffer, count);
         // Seek to the current position + the amount of bytes we just read (if it's possible)
         if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
-            // Error report if we somehow went out of range.
-            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
+            // Error report if we somehow went _out of range.
+            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is _out of range.");
         }
         return;
     }
@@ -38,7 +38,7 @@ void mh_stream_write(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
         stream->write(stream, buffer, count);
         // Same as read.
         if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
-            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
+            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is _out of range.");
         }
         return;
     }
@@ -71,10 +71,10 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
 
     // If the streams are seekable, check if this operation is possible
     if (src_stream->can_seek && size > src_stream->get_size(src_stream)) {
-        STREAM_ERROR("Not enough memory in src_stream to preform a mh_stream_copy_to operation.");
+        STREAM_ERROR("Not enough memory _in src_stream to preform a mh_stream_copy_to operation.");
     }
     if (dest_stream->can_seek && size > dest_stream->get_size(dest_stream)) {
-        STREAM_ERROR("Not enough memory in dest_stream to preform a mh_stream_copy_to operation.");
+        STREAM_ERROR("Not enough memory _in dest_stream to preform a mh_stream_copy_to operation.");
     }
 
     // try to NOT read everything at once...
@@ -85,9 +85,9 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     mh_destructor_free(buffer);
 }
 
-size_t mh_stream_write_reference(mh_stream_t *stream, void *ptr, size_t size) {
+size_t mh_stream_write_reference(mh_stream_t *stream, const void *ptr, size_t size) {
     // Create a memory reference
-    mh_memory_t memory = mh_memory_reference(ptr, size);
+    mh_memory_t memory = mh_memory_reference((void*)ptr, size);
     // Write to the stream
     mh_stream_write(stream, &memory, memory.size);
     return memory.offset;

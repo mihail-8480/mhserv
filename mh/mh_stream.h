@@ -40,6 +40,6 @@ size_t mh_stream_get_size(mh_stream_t *stream);
 void mh_stream_copy_to(mh_stream_t* dest, mh_stream_t* src, size_t size);
 
 // Write a string to a stream without copying it, return how many bytes were actually written
-size_t mh_stream_write_reference(mh_stream_t* stream, void* ptr, size_t size);
+size_t mh_stream_write_reference(mh_stream_t* stream, const void* ptr, size_t size);
 
 #endif //MHSERV_MH_STREAM_H
