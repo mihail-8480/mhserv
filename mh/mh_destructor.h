@@ -12,5 +12,5 @@ void mh_destructor_free(void *ptr);
 
 // Create an array of destructors
 mh_destructor_t* mh_destructor_array_new(mh_destructor_t** array, size_t length);
-
+void mh_destructor_array_set(mh_destructor_t* array, size_t index, mh_destructor_t *destructor);
 #endif //MHSERV_MH_DESTRUCTOR_H

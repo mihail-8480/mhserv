@@ -18,7 +18,9 @@ void mh_destructor_array_free(void* ptr) {
     mh_destructor_array_t* self = (mh_destructor_array_t*)ptr;
     // Call every destructor
     for(size_t i = 0; i < self->length; i++) {
-        mh_destructor_free(self->array[i]);
+        if (self->array[i] != NULL) {
+            mh_destructor_free(self->array[i]);
+        }
     }
     free(ptr);
 }
@@ -31,4 +33,9 @@ mh_destructor_t *mh_destructor_array_new(mh_destructor_t **array, size_t length)
         .destructor.free = mh_destructor_array_free
     };
     return (mh_destructor_t*)ptr;
+}
+
+void mh_destructor_array_set(mh_destructor_t *array, size_t index, mh_destructor_t *destructor) {
+    mh_destructor_array_t* self = (mh_destructor_array_t*)array;
+    self->array[index] = destructor;
 }
