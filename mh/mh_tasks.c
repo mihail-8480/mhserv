@@ -1,29 +1,29 @@
 #include "mh_tasks.h"
 
 void mh_task_free(void * ptr) {
-    mh_task mh_task = (mh_task_t*)ptr;
+    mh_task_t* mh_task = (mh_task_t*)ptr;
     // Destroy the used memory of a task
     if (mh_task->result != NULL)
         free(mh_task->result);
     free(mh_task);
 }
 
-mh_task_result_t mh_task_return(void *value, size_t size) {
+void* mh_task_return(void *value, size_t size) {
     // Return a value (allocate memory and copy a value to it and get the pointer)
-    mh_task_result_t result = malloc(size);
+    void* result = malloc(size);
     memcpy(result, value, size);
     return result;
 }
 
-mh_task_result_t mh_task_wait(mh_task mh_task) {
+void* mh_task_wait(mh_task_t* mh_task) {
     // Wait for a thread/task to finish
     void *result;
     pthread_join(mh_task->thread, &result);
     return result;
 }
-mh_task_args_t mh_task_runner(mh_task_args_t ptr) {
+void* mh_task_runner(void* ptr) {
     // Get the task from the arguments
-    mh_task self = (mh_task)ptr;
+    mh_task_t* self = (mh_task_t*)ptr;
 
     // Call the function and set the result
     self->result = self->action(self->args);
@@ -40,14 +40,14 @@ mh_task_args_t mh_task_runner(mh_task_args_t ptr) {
     return self->result;
 }
 
-void mh_task_run(mh_task mh_task) {
+void mh_task_run(mh_task_t* mh_task) {
     // Create a new thread
     pthread_create(&mh_task->thread, NULL, mh_task_runner, mh_task);
 }
 
-mh_task mh_task_create(action_t action, mh_task_args_t args, bool destroy_result) {
+mh_task_t* mh_task_create(action_t action, void* args, bool destroy_result) {
     // Create a new task (i should probably use malloc here)
-    mh_task mh_task = calloc(1,sizeof(mh_task_t));
+    mh_task_t* mh_task = calloc(1,sizeof(mh_task_t));
     *mh_task = (mh_task_t){
             .destructor = mh_task_free,
             .args = args,
