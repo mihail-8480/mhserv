@@ -19,7 +19,7 @@ void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) 
     ECHO("Content-Type: text/html; charset=UTF-8" ENDL);
     ECHO("Connection: close" ENDL);
     ECHO(ENDL);
-    ECHO("<h1>KEK</h1>");
+    ECHO("<h1>Hello, World!</h1>");
 }
 
 
