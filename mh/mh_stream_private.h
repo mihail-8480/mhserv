@@ -4,7 +4,6 @@
 #include "mh_memory.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 // Report a stream error
 #define STREAM_ERROR(x) mh_error_report("Stream error: " # x)
