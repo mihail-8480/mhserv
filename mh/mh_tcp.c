@@ -10,7 +10,7 @@ typedef struct {
     struct sockaddr_in address;
 } mh_con_task_args;
 
-mh_task_result_t mh_tcp_connected_async(mh_task_args_t args) {
+void* mh_tcp_connected_async(void* args) {
     // Create a new thread using mh_tasks and do the client handling on that thread
     mh_con_task_args* con_args = args;
     con_args->on_connect(con_args->client, con_args->address);
@@ -57,7 +57,7 @@ void mh_tcp_start(const uint16_t port, const int max_clients, mh_on_connect on_c
         args->on_connect = on_connect;
         args->address = address;
         args->client = client;
-        mh_task task = mh_task_create(mh_tcp_connected_async, args, true);
+        mh_task_t* task = mh_task_create(mh_tcp_connected_async, args, true);
         mh_task_run(task);
     }
 
