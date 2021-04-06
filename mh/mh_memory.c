@@ -1,3 +1,4 @@
+#include <string.h>
 #include "mh_memory.h"
 #include "mh_error.h"
 
@@ -9,7 +10,6 @@ void mh_memory_free(void* memory) {
     free(((mh_memory_t*)memory)->address);
     free(memory);
 }
-
 
 mh_memory_t *mh_memory_new(size_t size, bool clear) {
     // Allocate the memory container and set it's fields
@@ -50,4 +50,31 @@ void mh_memory_resize(mh_memory_t *memory, size_t size) {
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
     return (mh_memory_t){.address = address, .size = size, .offset = 0};
+}
+
+char *mh_memory_read_until(mh_memory_t *mem, char c) {
+
+    // Copy the memory into a c-string from the current offset, to the index of the character
+    size_t index = mh_memory_index_of(mem,c);
+    if (index == -1) return NULL;
+    size_t size = index-mem->offset;
+    char *value = malloc(size+1);
+    memcpy(value, mem->address+mem->offset, size);
+    value[size] = 0;
+
+    // Move the offset forward
+    mem->offset += size+1;
+    return value;
+}
+
+size_t mh_memory_index_of(mh_memory_t *mem, char c) {
+    char* str = (char*)mem->address;
+
+    // Find the index of a character in the memory
+    for(size_t i = mem->offset; i < mem->size; i++) {
+        if (str[i] == c) {
+            return i;
+        }
+    }
+    return -1;
 }
