@@ -29,6 +29,28 @@ mh_console_t mh_console_open(void) {
     return mh_console;
 }
 
+void mh_console_output_write_memory(mh_memory_t* memory) {
+    if (!mh_console.opened) {
+        mh_console = mh_console_open();
+    }
+    mh_stream_write(mh_console._out, memory, memory->size);
+}
+
+
+void mh_console_error_write_memory(mh_memory_t* memory) {
+    if (!mh_console.opened) {
+        mh_console = mh_console_open();
+    }
+    mh_stream_write(mh_console._err, memory, memory->size);
+}
+
+void mh_console_input_read_memory(mh_memory_t* memory) {
+    if (!mh_console.opened) {
+        mh_console = mh_console_open();
+    }
+    mh_stream_read(mh_console._in, memory, memory->size);
+}
+
 void mh_console_output_write(const char *str) {
     if (!mh_console.opened) {
         mh_console = mh_console_open();
@@ -43,7 +65,7 @@ void mh_console_error_write(const char *str) {
     mh_stream_write_reference(mh_console._err, str, strlen(str));
 }
 
-char *mh_console_input_read(size_t size) {
+char* mh_console_input_read(size_t size) {
     if (!mh_console.opened) {
         mh_console = mh_console_open();
     }
