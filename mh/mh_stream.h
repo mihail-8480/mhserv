@@ -19,7 +19,10 @@ mh_stream_t* mh_memory_stream_new(size_t size, bool fixed);
 mh_memory_t* mh_memory_stream_get_memory(mh_stream_t* stream);
 
 // Create a new socket stream (will probably work with normal file descriptors too)
-    mh_stream_t* mh_socket_stream_new(int sock);
+mh_stream_t* mh_socket_stream_new(int sock);
+
+// Create a new file stream
+mh_stream_t *mh_file_stream_new(FILE* file, bool should_close);
 
 // Move the stream's position, if it returns false it means it failed
 bool mh_stream_seek(mh_stream_t* stream, size_t position);
