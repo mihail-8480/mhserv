@@ -1,12 +1,11 @@
 #include "mh_http.h"
 #include "mh_stream.h"
-#include "mh_error.h"
 #include <unistd.h>
 #include <string.h>
 
-// The size of the buffer that is used while copying
+// The allocation_size of the buffer that is used while copying
 const size_t mh_http_copy_buffer_size = 128;
-// The maximal size of a request
+// The maximal allocation_size of a request
 const size_t mh_http_max_request_size = 16384;
 
 void mh_http_request_free(void *ptr) {
@@ -15,7 +14,7 @@ void mh_http_request_free(void *ptr) {
     free(self);
 }
 
-mh_http_request_t *mh_http_request_new(mh_socket_address_t address, mh_memory_t *header) {
+mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_t address, mh_memory_t *header) {
     mh_http_request_t* request = calloc(1, sizeof(mh_http_request_t));
 
     // Read the request method
@@ -30,12 +29,12 @@ mh_http_request_t *mh_http_request_new(mh_socket_address_t address, mh_memory_t 
     // Skip the \n
     header->offset++;
 
-    mh_memory_t *memory = mh_memory_new(sizeof(mh_memory_t)*16, true);
+    mh_memory_t *memory = mh_memory_new(context, sizeof(mh_memory_t)*16, true);
     // Read the headers
     size_t count = 0;
     for (mh_memory_t single; (single = mh_memory_read_until(header, '\r')).size != 0; header->offset++, count++) {
         if (memory->size/sizeof(mh_memory_t) < count + 1) {
-            mh_memory_resize(memory, memory->size*2);
+            mh_memory_resize(context, memory, memory->size*2);
         }
         ((mh_memory_t*)memory->address)[count] = single;
     }
@@ -77,19 +76,19 @@ http_request_handler_t http_request_handler = NULL;
 void mh_http_set_request_handler(http_request_handler_t request_handler) {
     http_request_handler = request_handler;
 }
-void mh_http(int socket, mh_socket_address_t address) {
+void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
     if (http_request_handler == NULL) {
         close(socket);
-        mh_error_report("A request handler is not set.");
+        mh_context_error(context, "A request handler is not set.", mh_http);
+        return;
     }
 
     // Create the streams
-    mh_stream_t* socket_stream = mh_socket_stream_new(socket);
-    mh_stream_t* request_stream = mh_memory_stream_new(mh_http_copy_buffer_size, false);
+    mh_stream_t* socket_stream = mh_socket_stream_new(context, socket);
+    mh_stream_t* request_stream = mh_memory_stream_new(context, mh_http_copy_buffer_size, false);
 
-    // Create a destructor array
-    mh_destructor_t* destructor = mh_destructor_array_new((mh_destructor_t*[]) {
-            &socket_stream->destructor, &request_stream->destructor, NULL}, 3);
+    mh_context_add_destructor(context, &socket_stream->destructor);
+    mh_context_add_destructor(context, &request_stream->destructor);
 
     // Get the request_stream stream's memory
     mh_memory_t* request_memory = mh_memory_stream_get_memory(request_stream);
@@ -97,7 +96,7 @@ void mh_http(int socket, mh_socket_address_t address) {
     // This is the offset where the header ends
     size_t request_header_end;
 
-    // Read from the client until you encounter the header's end or until you hit the max request_stream size limit
+    // Read from the client until you encounter the header's end or until you hit the max request_stream allocation_size limit
     size_t iterations = 0;
     do {
         iterations++;
@@ -113,7 +112,7 @@ void mh_http(int socket, mh_socket_address_t address) {
 
     // If you didn't encounter the header's end for some reason, complain
     if (request_header_end == 0) {
-        mh_error_report_safe("Could not find end of header _in request_stream.", destructor);
+        mh_context_error(context, "Could not find end of header in request_stream.", mh_http);
         return;
     }
 
@@ -122,9 +121,8 @@ void mh_http(int socket, mh_socket_address_t address) {
     mh_memory_t post = mh_memory_reference(request_memory->address + request_header_end, request_memory->offset - request_header_end);
 
     // Parse the request header
-    mh_http_request_t *request = mh_http_request_new(address, &header);
-    mh_destructor_array_set(destructor, 2, &request->destructor);
-
+    mh_http_request_t *request = mh_http_request_new(context, address, &header);
+    mh_context_add_destructor(context, &request->destructor);
 
     // If you are supposed to, read the entire post request_stream
     if (memcmp(request->method.address, "POST", request->method.size) == 0) {
@@ -138,8 +136,5 @@ void mh_http(int socket, mh_socket_address_t address) {
     request->content = post;
 
     // Call the request handler
-    http_request_handler(socket_stream, request);
-
-    // Free the memory
-    mh_destructor_free(destructor);
+    http_request_handler(context, socket_stream, request);
 }

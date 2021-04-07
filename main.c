@@ -16,27 +16,26 @@ void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
     ECHO(" was not found!</p>");
 }
 
-void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) {
+void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Currently it only sends a 404
     // TODO: Add a hashmap for headers
-    // TODO: Make all the user exceptions free the used memory and recover
+    // TODO: Fix memory leaks
 
     ECHO("HTTP/1.1 200 OK" ENDL);
     ECHO("Content-Type: text/plain; charset=UTF-8" ENDL);
     ECHO("Connection: close" ENDL);
     ECHO(ENDL);
 
-    mh_stream_t* stream = mh_file_stream_new(fopen("/etc/hosts", "rb"), true);
+    mh_stream_t* stream = mh_file_stream_new(context, fopen("/etc/hosts", "rb"), true);
     mh_stream_copy_to(socket_stream, stream, mh_stream_get_size(stream));
-    mh_destructor_free(stream);
 
     //generate_404(socket_stream, request);
 }
 
 int main(void) {
-    mh_tcp_threaded_set(true);
+    mh_tcp_threaded_set(false);
     // Set the request handler
     mh_http_set_request_handler(my_request_handler);
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
-    mh_tcp_start(8080, 32, mh_http);
+    mh_tcp_start(mh_start(),8080, 32, mh_http);
 }
