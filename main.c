@@ -1,5 +1,6 @@
 #include "mh/mh_tcp.h"
 #include "mh/mh_http.h"
+#include "mh/mh_console.h"
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Send the headers
