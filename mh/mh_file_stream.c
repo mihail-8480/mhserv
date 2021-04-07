@@ -13,9 +13,10 @@ void mh_file_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     // Read from the file
     size_t size = fread(buffer->address, 1, count, this->file);
 
-    // If the size is negative, something went wrong
+    // If the allocation_size is negative, something went wrong
     if (size == -1) {
-        STREAM_ERROR("Failed reading from the file, it is probably closed.");
+        mh_context_error(this->base.context, "Failed reading from the file, it is probably closed.", mh_file_stream_read);
+        return;
     }
 
     // Change the buffer offset
@@ -30,7 +31,8 @@ void mh_file_stream_write(void* self, mh_memory_t* buffer, size_t count) {
 
     // See above.
     if (size == -1) {
-        STREAM_ERROR("Failed writing to the file, it is probably closed.");
+        mh_context_error(this->base.context, "Failed writing to the file, it is probably closed.",mh_file_stream_write);
+        return;
     }
 
     // Change the buffer offset
@@ -65,9 +67,10 @@ size_t mh_file_stream_get_size(void *self) {
     return size;
 }
 
-mh_stream_t *mh_file_stream_new(FILE* file, bool should_close) {
+mh_stream_t *mh_file_stream_new(mh_context_t* context, FILE* file, bool should_close) {
     mh_file_stream_t* stream = malloc(sizeof(mh_file_stream_t));
     stream->base.base.destructor.free = mh_file_stream_free;
+    stream->base.context = context;
 
     // Override and enable reading
     stream->base.can_read = true;

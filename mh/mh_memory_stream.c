@@ -14,7 +14,8 @@ void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     // Check if the memory that is being read is actually allocated
     if (this->memory->offset + count > this->memory->size) {
         // If not, report an error
-        STREAM_ERROR("The memory you are trying to read is out of range.");
+        mh_context_error(this->base.context,"The memory you are trying to read is out of range.", mh_memory_stream_read);
+        return;
     }
 
     // Copy bytes and update the buffer offset
@@ -26,7 +27,7 @@ void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
 static inline void mh_memory_stream_increase(mh_memory_stream_t* this, size_t minimal_size) {
     // Resize the memory to be at least minimal_size larger (or 2x, whatever is bigger)
     size_t increase = this->memory->offset * 2 > minimal_size ? this->memory->size * 2 : minimal_size;
-    mh_memory_resize(this->memory, increase);
+    mh_memory_resize(this->base.context, this->memory, increase);
 }
 
 void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
@@ -35,7 +36,8 @@ void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     if (this->memory->offset + count > this->memory->size) {
         if (this->fixed) {
             // Report the error
-            STREAM_ERROR("The memory you are trying to write is too large for this stream.");
+            mh_context_error(this->base.context,"The memory you are trying write is too large for this stream.", mh_memory_stream_write);
+            return;
         } else {
             // Allocate enough memory to complete the write operation
             mh_memory_stream_increase(this, this->memory->offset + count);
@@ -52,7 +54,8 @@ void mh_memory_stream_seek(void* self, size_t position) {
     // Set the memory offset
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     if (this->memory->offset + position < this->memory->size) {
-        STREAM_ERROR("The position is larger than the memory size, cannot seek.");
+        mh_context_error(this->base.context,"The position is larger than the memory allocation_size, cannot seek.", mh_memory_stream_seek);
+        return;
     }
 
     this->memory->offset = position;
@@ -65,14 +68,14 @@ size_t mh_memory_stream_get_position(void *self) {
 }
 size_t mh_memory_stream_get_size(void* self) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
-    // Get the memory size
+    // Get the memory allocation_size
     return this->memory->size;
 }
 
 void mh_memory_stream_free(void* self) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     // Free the internal buffer
-    mh_destructor_free(this->memory);
+    mh_destroy(this->memory);
     // Free the resources used by the stream structure
     free(self);
 }
@@ -81,13 +84,14 @@ void mh_memory_stream_free(void* self) {
 mh_memory_t *mh_memory_stream_get_memory(mh_stream_t *stream) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)stream;
 
-    // Get the memory address, offset and size
+    // Get the memory address, offset and allocation_size
     return this->memory;
 }
 
-mh_stream_t *mh_memory_stream_new(size_t size, bool fixed) {
+mh_stream_t *mh_memory_stream_new(mh_context_t* context, size_t size, bool fixed) {
     mh_memory_stream_t* stream = malloc(sizeof(mh_memory_stream_t));
     stream->base.base.destructor.free = mh_memory_stream_free;
+    stream->base.context = context;
 
     // Override and enable reading
     stream->base.can_read = true;
@@ -104,7 +108,7 @@ mh_stream_t *mh_memory_stream_new(size_t size, bool fixed) {
     stream->base.get_size = mh_memory_stream_get_size;
 
     // Init the default values
-    stream->memory = mh_memory_new(size, true);
+    stream->memory = mh_memory_new(context, size, true);
     stream->fixed = fixed;
     return (mh_stream_t*)stream;
 }

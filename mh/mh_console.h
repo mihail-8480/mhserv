@@ -3,14 +3,14 @@
 
 #include "mh_stream.h"
 typedef struct mh_console_static_write {
-    void (*write)(const char* str);
-    void (*write_memory)(mh_memory_t* memory);
+    void (*write)(mh_context_t* context, const char* str);
+    void (*write_memory)(mh_context_t* context, mh_memory_t* memory);
 } mh_console_static_write_t;
 
 
 typedef struct mh_console_static_read {
-    char* (*read)(size_t size);
-    void (*read_memory)(mh_memory_t* memory);
+    char* (*read)(mh_context_t* context, size_t size);
+    void (*read_memory)(mh_context_t* context, mh_memory_t* memory);
 } mh_console_static_read_t;
 
 typedef struct mh_console {
@@ -26,19 +26,19 @@ typedef struct mh_console {
     char **argv;
 } mh_console_t;
 
-void mh_console_output_write_memory(mh_memory_t* memory);
+void mh_console_output_write_memory(mh_context_t* context, mh_memory_t* memory);
 
-void mh_console_error_write_memory(mh_memory_t* memory);
+void mh_console_error_write_memory(mh_context_t* context, mh_memory_t* memory);
 
-void mh_console_input_read_memory(mh_memory_t* memory);
+void mh_console_input_read_memory(mh_context_t* context, mh_memory_t* memory);
 
-void mh_console_output_write(const char *str);
+void mh_console_output_write(mh_context_t* context, const char *str);
 
-void mh_console_error_write(const char *str);
+void mh_console_error_write(mh_context_t* context, const char *str);
 
-char* mh_console_input_read(size_t size);
+char* mh_console_input_read(mh_context_t* context, size_t size);
 
-mh_console_t mh_console_open(void);
+mh_console_t mh_console_open(mh_context_t* context);
 static mh_console_t mh_console = {
         .open = mh_console_open,
         .opened = false,

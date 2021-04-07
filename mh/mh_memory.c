@@ -1,8 +1,4 @@
 #include "mh_memory.h"
-#include "mh_error.h"
-
-// Report a memory error
-#define MEMORY_ERROR(x) mh_error_report("Memory error: " # x)
 
 void mh_memory_free(void* memory) {
     // Free the memory
@@ -10,11 +6,11 @@ void mh_memory_free(void* memory) {
     free(memory);
 }
 
-mh_memory_t *mh_memory_new(size_t size, bool clear) {
+mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
     // Allocate the memory container and set it's fields
     mh_memory_t *mem = malloc(sizeof(mh_memory_t));
     if (mem == NULL) {
-        MEMORY_ERROR("Failed creating object.");
+        mh_context_error(context, "Couldn't allocate memory for the structure.", mh_memory_new);
         return NULL;
     }
     mem->size = size;
@@ -32,14 +28,14 @@ mh_memory_t *mh_memory_new(size_t size, bool clear) {
     // If the memory wasn't properly allocated, report the error
     if (mem->address == NULL) {
         free(mem);
-        MEMORY_ERROR("Failed allocating memory.");
+        mh_context_error(context, "Couldn't allocate memory.", mh_memory_new);
         return NULL;
     }
     return mem;
 }
 
-void mh_memory_resize(mh_memory_t *memory, size_t size) {
-    // A re-alloc isn't needed if the size is smaller than the memory size
+void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
+    // A re-alloc isn't needed if the allocation_size is smaller than the memory allocation_size
     if (size <= memory->size) {
         return;
     }
@@ -48,10 +44,11 @@ void mh_memory_resize(mh_memory_t *memory, size_t size) {
 
     // If the new pointer is null, report the error
     if (new == NULL) {
-        MEMORY_ERROR("Failed re-allocating memory.");
+        mh_context_error(context, "Couldn't resize the memory.", mh_memory_resize);
+        return;
     }
 
-    // Set the new address and size
+    // Set the new address and allocation_size
     memory->address = new;
     memory->size = size;
 }
