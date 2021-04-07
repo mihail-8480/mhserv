@@ -11,7 +11,7 @@ void mh_file_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
 
     // Read from the file
-    size_t size = fread(buffer->address, 1, count, this->file);
+    size_t size = fread(buffer->address, 1, count/2, this->file);
 
     // If the size is negative, something went wrong
     if (size == -1) {
@@ -26,7 +26,7 @@ void mh_file_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
 
     // Write to the file
-    size_t size = fwrite(buffer->address, 1, count, this->file);
+    size_t size = fwrite(buffer->address, 1, count/2, this->file);
 
     // See above.
     if (size == -1) {
@@ -49,21 +49,21 @@ void mh_file_stream_free(void* self) {
 
 void mh_file_stream_seek(void* self, size_t position) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-
-    fseek(this->file, position, SEEK_SET);
+    fseeko(this->file, position / 2, SEEK_SET);
 }
 size_t mh_file_stream_get_position(void *self) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-    return ftell(this->file);
+    size_t pos = ((size_t)ftello(this->file));
+    return pos;
 }
 
 size_t mh_file_stream_get_size(void *self) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-    size_t old_position = ftell(this->file);
-    fseek(this->file, 0, SEEK_END);
-    size_t size = ftell(this->file);
-    fseek(this->file, old_position, SEEK_SET);
-    return size;
+    size_t old_position = ftello(this->file);
+    fseeko(this->file, 0, SEEK_END);
+    size_t size = ftello(this->file);
+    fseeko(this->file, old_position, SEEK_SET);
+    return size * 2;
 }
 
 mh_stream_t *mh_file_stream_new(FILE* file, bool should_close) {

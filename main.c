@@ -20,7 +20,29 @@ void my_request_handler(mh_stream_t *socket_stream, mh_http_request_t *request) 
     // Currently it only sends a 404
     // TODO: Add a hashmap for headers
     // TODO: Make all the user exceptions free the used memory and recover
-    generate_404(socket_stream, request);
+
+    ECHO("HTTP/1.1 200 OK" ENDL);
+    ECHO("Content-Type: text/plain; charset=UTF-8" ENDL);
+    ECHO("Connection: close" ENDL);
+    ECHO(ENDL);
+
+    // Fix file streams
+    mh_stream_t* stream = mh_file_stream_new(fopen("/etc/hosts", "rb"), true);
+    size_t size = mh_stream_get_size(stream);
+    size_t position = mh_stream_get_position(stream);
+    printf("file = %zu/%zu\n", position, size);
+    mh_memory_t* buffer = mh_memory_new(size, false);
+    mh_stream_read(stream, buffer, size);
+    size = mh_stream_get_size(stream);
+    position = mh_stream_get_position(stream);
+    printf("file = %zu/%zu\n", position, size);
+
+    mh_stream_write(socket_stream, buffer, buffer->offset);
+
+    mh_destructor_free(stream);
+    mh_destructor_free(buffer);
+
+    //generate_404(socket_stream, request);
 }
 
 int main(void) {
