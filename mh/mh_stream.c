@@ -3,9 +3,7 @@
 #include "mh_destructor.h"
 bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
-
-    // If the stream can seek and the position is valid, seek.
-    if (stream->can_seek && position < stream->get_size(stream) + 1) {
+    if (stream->can_seek) {
         stream->seek(stream, position);
         return true;
     }
@@ -15,14 +13,8 @@ bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
 void mh_stream_read(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
 
-    // If the stream can read, read.
     if (stream->can_read) {
         stream->read(stream, buffer, count);
-        // Seek to the current position + the amount of bytes we just read (if it's possible)
-        if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
-           // Error report if we somehow went _out of range.
-            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
-        }
         return;
     }
 
@@ -33,13 +25,8 @@ void mh_stream_read(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
 void mh_stream_write(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
     mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
 
-    // If the stream can write, write.
     if (stream->can_write) {
         stream->write(stream, buffer, count);
-        // Same as read.
-        if (stream->can_seek && !mh_stream_seek(ptr, stream->get_position(stream) + count)) {
-            STREAM_ERROR("Failed seeking because you are trying to seek to a position that is out of range.");
-        }
         return;
     }
 
