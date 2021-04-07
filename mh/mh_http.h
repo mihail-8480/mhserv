@@ -22,8 +22,6 @@ mh_http_request_t* mh_http_request_new(mh_socket_address_t address, mh_memory_t*
 
 // Why allocate stuff when you don't have to
 #define ECHO(str) mh_stream_write_reference(socket_stream, str, sizeof(str)-1)
-#define WRITE(stream, str) mh_stream_write_reference(stream, str, sizeof(str)-1)
-#define READ(stream, mem, count) mh_stream_read(stream, mem, count)
 
 // The HTTP protocol
 void mh_http(int socket, mh_socket_address_t address);
