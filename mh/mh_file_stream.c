@@ -49,20 +49,19 @@ void mh_file_stream_free(void* self) {
 
 void mh_file_stream_seek(void* self, size_t position) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-
-    fseek(this->file, position, SEEK_SET);
+    fseeko(this->file, position, SEEK_SET);
 }
 size_t mh_file_stream_get_position(void *self) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-    return ftell(this->file);
+    return ftello(this->file);
 }
 
 size_t mh_file_stream_get_size(void *self) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
-    size_t old_position = ftell(this->file);
-    fseek(this->file, 0, SEEK_END);
-    size_t size = ftell(this->file);
-    fseek(this->file, old_position, SEEK_SET);
+    size_t old_position = ftello(this->file);
+    fseeko(this->file, 0, SEEK_END);
+    size_t size = ftello(this->file);
+    fseeko(this->file, old_position, SEEK_SET);
     return size;
 }
 

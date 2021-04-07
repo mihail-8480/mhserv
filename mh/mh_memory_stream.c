@@ -14,12 +14,13 @@ void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     // Check if the memory that is being read is actually allocated
     if (this->memory->offset + count > this->memory->size) {
         // If not, report an error
-        STREAM_ERROR("The memory you are trying to read is _out of range.");
+        STREAM_ERROR("The memory you are trying to read is out of range.");
     }
 
     // Copy bytes and update the buffer offset
     memcpy(buffer->address, this->memory->address + this->memory->offset, count);
     buffer->offset = count;
+    this->memory->offset += count;
 }
 
 static inline void mh_memory_stream_increase(mh_memory_stream_t* this, size_t minimal_size) {
@@ -43,12 +44,17 @@ void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     // Copy bytes and update the buffer offset
     memcpy(this->memory->address + this->memory->offset, buffer->address, count);
     buffer->offset = count;
+    this->memory->offset += count;
 }
 
 
 void mh_memory_stream_seek(void* self, size_t position) {
     // Set the memory offset
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+    if (this->memory->offset + position < this->memory->size) {
+        STREAM_ERROR("The position is larger than the memory size, cannot seek.");
+    }
+
     this->memory->offset = position;
 }
 
