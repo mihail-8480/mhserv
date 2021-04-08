@@ -1,10 +1,9 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
-#include "../mh_memory.h"
 #include <unistd.h>
 #include <netdb.h>
 // The socket stream structure
-typedef struct {
+typedef struct mh_socket_stream {
     mh_stream_private_t base;
     int socket;
 } mh_socket_stream_t;

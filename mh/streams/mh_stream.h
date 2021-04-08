@@ -9,7 +9,6 @@
 // The memory stream structure
 typedef struct mh_stream {
     mh_destructor_t destructor;
-    // It should be empty
 } mh_stream_t;
 
 // Create a new memory stream

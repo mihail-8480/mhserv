@@ -1,8 +1,8 @@
 #include <string.h>
 #include <unistd.h>
-#include <pthread.h>
 #include "mh/network/mh_http.h"
 #include "mh/streams/mh_console.h"
+#include "mh/mh_thread.h"
 
 bool tcp_error(mh_context_t* context, const char* message, void* from) {
     if (strcmp(message, "Broken pipe.") == 0) {
@@ -18,7 +18,7 @@ bool http_error(mh_context_t* context, const char* message, void* from) {
     mh_console.error.write(context, message);
     mh_console.error.write(context, "\n");
     mh_end(context);
-    pthread_exit(0);
+    mh_thread_exit(0);
 }
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
@@ -45,8 +45,6 @@ void send_file(mh_context_t* context, mh_stream_t *socket_stream, const char* fi
 }
 
 void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_http_request_t *request) {
-    // TODO: Add a hashmap for headers
-
     char url[request->url.size+1];
     memcpy(url, request->url.address, request->url.size);
     url[request->url.size] = 0;
@@ -56,11 +54,12 @@ void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_ht
     } else {
         generate_404(socket_stream, request);
     }
-
-
 }
 
 int main(void) {
+    // TODO: Add a hashmap for headers
+    // TODO: Make the http and tcp servers be based on an instance
+
     mh_context_t* context = mh_start();
 
     // Configure

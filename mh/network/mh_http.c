@@ -6,8 +6,18 @@
 const size_t mh_http_copy_buffer_size = 128;
 // The maximal allocation_size of a request
 const size_t mh_http_max_request_size = 16384;
-
+// The error handler
 bool (*mh_http_error_handler)(mh_context_t *, const char *, void *) = NULL;
+// The request handler
+http_request_handler_t http_request_handler = NULL;
+
+void mh_http_set_request_handler(http_request_handler_t request_handler) {
+    http_request_handler = request_handler;
+}
+
+void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *)) {
+    mh_http_error_handler = handler;
+}
 
 void mh_http_request_free(void *ptr) {
     mh_http_request_t* self = (mh_http_request_t*)ptr;
@@ -39,6 +49,8 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
         }
         ((mh_memory_t*)memory->address)[count] = single;
     }
+
+    // Create the request
     *request = (mh_http_request_t) {
             .address = address,
             .method = method,
@@ -49,12 +61,13 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
             .destructor = mh_http_request_free
     };
 
+    // Destroy the memory pointer (the allocated memory is destroyed in the destructor)
     free(memory);
     return request;
 }
 
 
-// Figure _out where the end of the header is
+// Figure out where the end of the header is
 size_t http_find_end_of_headers(mh_memory_t *mem) {
     // Turn the memory into a character array
     char* str = (char*)mem->address;
@@ -72,20 +85,15 @@ size_t http_find_end_of_headers(mh_memory_t *mem) {
     return 0;
 }
 
-http_request_handler_t http_request_handler = NULL;
-
-void mh_http_set_request_handler(http_request_handler_t request_handler) {
-    http_request_handler = request_handler;
-}
-
-
 void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
+    // If there is no request handler, ERROR!
     if (http_request_handler == NULL) {
         close(socket);
         mh_context_error(context, "A request handler is not set.", mh_http);
         return;
     }
 
+    // Set the error handler to the current context if there is one
     if (mh_http_error_handler != NULL) {
         mh_context_set_error_handler(context, mh_http_error_handler);
     }
@@ -144,10 +152,4 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
 
     // Call the request handler
     http_request_handler(context, socket_stream, request);
-}
-
-
-
-void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *)) {
-    mh_http_error_handler = handler;
 }

@@ -1,7 +1,9 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
 #include <unistd.h>
-typedef struct {
+
+// The file stream structure
+typedef struct mh_file_stream {
     mh_stream_private_t base;
     FILE* file;
     bool should_close;
@@ -60,9 +62,16 @@ size_t mh_file_stream_get_position(void *self) {
 
 size_t mh_file_stream_get_size(void *self) {
     mh_file_stream_t* this = (mh_file_stream_t*)self;
+    // Save the old position
     size_t old_position = ftello(this->file);
+
+    // Seek to the end
     fseeko(this->file, 0, SEEK_END);
+
+    // Get the position (of the end)
     size_t size = ftello(this->file);
+
+    // Seek back to the old position
     fseeko(this->file, old_position, SEEK_SET);
     return size;
 }
