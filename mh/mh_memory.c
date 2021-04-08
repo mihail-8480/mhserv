@@ -77,7 +77,7 @@ mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {
 size_t mh_memory_index_of(mh_memory_t *mem, char c) {
     char* str = (char*)mem->address;
 
-    // Find the index of a character _in the memory
+    // Find the index of a character in the memory
     for(size_t i = mem->offset; i < mem->size; i++) {
         if (str[i] == c) {
             return i;

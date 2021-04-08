@@ -1,9 +1,8 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
-#include "../mh_memory.h"
 
 // The memory stream, it's practically a dynamic array
-typedef struct {
+typedef struct mh_memory_stream {
     mh_stream_private_t base;
     mh_memory_t* memory;
     bool fixed;
@@ -75,7 +74,7 @@ size_t mh_memory_stream_get_size(void* self) {
 void mh_memory_stream_free(void* self) {
     mh_memory_stream_t* this = (mh_memory_stream_t*)self;
     // Free the internal buffer
-    mh_destroy(this->memory);
+    mh_destroy(&this->memory->destructor);
     // Free the resources used by the stream structure
     free(self);
 }
