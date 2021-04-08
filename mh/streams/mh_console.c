@@ -69,7 +69,7 @@ char* mh_console_input_read(mh_context_t* context, size_t size) {
     if (!mh_console.opened) {
         mh_console = mh_console_open(context);
     }
-    char* buffer = mh_context_allocate(context, size, false);
+    char* buffer = mh_context_allocate(context, size, false).ptr;
     mh_memory_t reference = mh_memory_reference(buffer,  size);
     mh_stream_read(mh_console.in, &reference, size);
     return buffer;

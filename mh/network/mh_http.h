@@ -7,7 +7,6 @@
 
 // A http request
 typedef struct mh_http_request {
-    mh_destructor_t destructor;
     mh_memory_t method;
     mh_memory_t url;
     mh_memory_t version;

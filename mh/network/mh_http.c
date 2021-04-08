@@ -28,14 +28,8 @@ void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, voi
     mh_http_error_handler = handler;
 }
 
-void mh_http_request_free(void *ptr) {
-    mh_http_request_t* self = (mh_http_request_t*)ptr;
-    free(self->headers);
-    free(self);
-}
-
 mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_t address, mh_memory_t *header) {
-    mh_http_request_private_t* request = calloc(1, sizeof(mh_http_request_private_t));
+    mh_http_request_private_t* request = mh_context_allocate(context, sizeof(mh_http_request_private_t), true).ptr;
 
     // Read the request method
     mh_memory_t method = mh_memory_read_until(header, ' ');
@@ -67,11 +61,8 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
             .base.version = version,
             .base.headers = (mh_memory_t*)memory->address,
             .base.headers_count = count,
-            .base.destructor = mh_http_request_free
     };
 
-    // Destroy the memory pointer (the allocated memory is destroyed in the destructor)
-    free(memory);
     return (mh_http_request_t*)request;
 }
 
@@ -121,9 +112,6 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
     mh_stream_t* socket_stream = mh_socket_stream_new(context, socket);
     mh_stream_t* request_stream = mh_memory_stream_new(context, mh_http_copy_buffer_size, false);
 
-    mh_context_add_destructor(context, &socket_stream->destructor);
-    mh_context_add_destructor(context, &request_stream->destructor);
-
     // Get the request_stream stream's memory
     mh_memory_t* request_memory = mh_memory_stream_get_memory(request_stream);
 
@@ -156,7 +144,6 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
 
     // Parse the request header
     mh_http_request_t *request = mh_http_request_new(context, address, &header);
-    mh_context_add_destructor(context, &request->destructor);
     request->content = post;
 
     // Init some private fields

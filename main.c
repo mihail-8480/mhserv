@@ -17,8 +17,9 @@ bool tcp_error(mh_context_t* context, const char* message, void* from) {
 bool http_error(mh_context_t* context, const char* message, void* from) {
     mh_console.error.write(context, message);
     mh_console.error.write(context, "\n");
-    mh_end(context);
-    mh_thread_exit(0);
+    //mh_end(context);
+    //mh_thread_exit(0);
+    return false;
 }
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
@@ -44,7 +45,6 @@ void send_file(mh_context_t* context, mh_stream_t *socket_stream, const char* fi
 
     // Send the file
     mh_stream_t* stream = mh_file_stream_new(context, fopen(file, "rb"), true);
-    mh_context_add_destructor(context, &stream->destructor);
     mh_stream_copy_to(socket_stream, stream, mh_stream_get_size(stream));
 }
 

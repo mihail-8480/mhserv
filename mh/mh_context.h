@@ -5,7 +5,11 @@
 
 // A function pointer that points to the method that is supposed to free memory
 typedef void (*mh_destructor_free_t)(void* ptr);
-
+typedef void* mh_context_allocation_t;
+typedef struct mh_context_allocation_reference {
+    mh_context_allocation_t ptr;
+    size_t index;
+} mh_context_allocation_reference_t;
 // A destructor structure, should be a part of every other structure that needs freeing
 typedef struct mh_destructor {
     // The destructor function
@@ -36,8 +40,11 @@ void mh_context_error(mh_context_t* context, const char* message, void* from);
 // Set an error handler to a context
 void mh_context_set_error_handler(mh_context_t* context, mh_error_handler_t handler);
 
+// Resize memory in the context
+void* mh_context_reallocate(mh_context_t* context, mh_context_allocation_reference_t ref, size_t size);
+
 // Allocate memory that will get destroyed when the context ends
-void* mh_context_allocate(mh_context_t* context, size_t size, bool clear);
+mh_context_allocation_reference_t mh_context_allocate(mh_context_t* context, size_t size, bool clear);
 
 // Add a destructor that will be called when the context ends
 void* mh_context_add_destructor(mh_context_t* context, mh_destructor_t* destructor);
