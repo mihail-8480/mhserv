@@ -17,9 +17,8 @@ bool tcp_error(mh_context_t* context, const char* message, void* from) {
 bool http_error(mh_context_t* context, const char* message, void* from) {
     mh_console.error.write(context, message);
     mh_console.error.write(context, "\n");
-    //mh_end(context);
-    //mh_thread_exit(0);
-    return false;
+    mh_end(context);
+    mh_thread_exit(0);
 }
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
