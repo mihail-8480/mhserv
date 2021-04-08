@@ -22,11 +22,13 @@ bool http_error(mh_context_t* context, const char* message, void* from) {
 }
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
+    // 404 header
     ECHO("HTTP/1.1 404 Not Found" ENDL);
     ECHO("Content-Type: text/html; charset=UTF-8" ENDL);
     ECHO("Connection: close" ENDL);
     ECHO(ENDL);
 
+    // 404 content
     ECHO("<h1>Not Found</h1>");
     ECHO("<p>The page you have requested at ");
     mh_stream_write(socket_stream, &request->url, request->url.size);
@@ -34,21 +36,33 @@ void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
 }
 
 void send_file(mh_context_t* context, mh_stream_t *socket_stream, const char* file) {
+    // text/plain header
     ECHO("HTTP/1.1 200 OK" ENDL);
     ECHO("Content-Type: text/plain; charset=UTF-8" ENDL);
     ECHO("Connection: close" ENDL);
     ECHO(ENDL);
 
+    // Send the file
     mh_stream_t* stream = mh_file_stream_new(context, fopen(file, "rb"), true);
     mh_context_add_destructor(context, &stream->destructor);
     mh_stream_copy_to(socket_stream, stream, mh_stream_get_size(stream));
 }
 
 void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_http_request_t *request) {
+
+    // Turn the URL into a C-string
     char url[request->url.size+1];
     memcpy(url, request->url.address, request->url.size);
     url[request->url.size] = 0;
 
+    /*
+     * This is how you would read the rest of the POST content
+     * if (memcmp(request->method.address, "POST", 4) == 0) {
+     *  mh_http_request_read_content(socket_stream, request);
+     * }
+     */
+
+    // If the file exists, send it, if not, send a 404
     if(access(url, R_OK) == 0) {
         send_file(context, socket_stream, url);
     } else {

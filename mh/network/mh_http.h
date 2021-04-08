@@ -35,4 +35,7 @@ void mh_http_set_request_handler(http_request_handler_t request_handler);
 
 // Set an error handler
 void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *));
+
+// Finish reading the entire post content into memory
+void mh_http_request_read_content(mh_stream_t* socket_stream, mh_http_request_t* request);
 #endif //MHSERV_MH_HTTP_H
