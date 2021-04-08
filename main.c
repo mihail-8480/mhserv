@@ -1,6 +1,4 @@
-#include "mh/mh_tcp.h"
-#include "mh/mh_http.h"
-#include "mh/mh_console.h"
+#include "mh/network/mh_http.h"
 
 void generate_404(mh_stream_t *socket_stream, mh_http_request_t *request) {
     // Send the headers
@@ -37,5 +35,4 @@ int main(void) {
     // Set the request handler
     mh_http_set_request_handler(my_request_handler);
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
-    mh_tcp_start(mh_start(),8080, 32, mh_http);
-}
+    mh_tcp_start(mh_start(),8080, 32, mh_http);}

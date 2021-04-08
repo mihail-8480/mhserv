@@ -1,5 +1,5 @@
 #include "mh_http.h"
-#include "mh_stream.h"
+#include "../streams/mh_stream.h"
 #include <unistd.h>
 #include <string.h>
 

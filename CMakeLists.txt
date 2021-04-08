@@ -9,4 +9,4 @@ set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fwhole-program")
 set(CMAKE_EXE_LINKER_FLAGS "-static -pthread")
 
-add_executable(mhserv main.c mh/mh_stream.c mh/mh_memory_stream.c mh/mh_memory.c mh/mh_tcp.c mh/mh_socket_stream.c mh/mh_http.c mh/mh_console.c mh/mh_thread.c mh/mh_file_stream.c mh/mh_context.c)
+add_executable(mhserv main.c mh/streams/mh_stream.c mh/streams/mh_memory_stream.c mh/mh_memory.c mh/network/mh_tcp.c mh/streams/mh_socket_stream.c mh/network/mh_http.c mh/streams/mh_console.c mh/mh_thread.c mh/streams/mh_file_stream.c mh/mh_context.c)

@@ -1,6 +1,6 @@
 #ifndef MHSERV_MH_STREAM_PRIVATE_H
 #define MHSERV_MH_STREAM_PRIVATE_H
-#include "mh_memory.h"
+#include "../mh_memory.h"
 #include <stdlib.h>
 #include <string.h>
 
