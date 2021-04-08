@@ -42,19 +42,17 @@ void mh_socket_stream_write(void* self, mh_memory_t* buffer, size_t count) {
 
 void mh_socket_stream_free(void* self) {
     mh_socket_stream_t* this = (mh_socket_stream_t*)self;
-
     // Shutdown the socket
     shutdown(this->socket, SHUT_WR);
     // Close the socket
     close(this->socket);
-    // Free the memory used by the stream
-    free(self);
 }
 
 mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
-    mh_socket_stream_t* stream = malloc(sizeof(mh_socket_stream_t));
+    mh_socket_stream_t* stream = mh_context_allocate(context, sizeof(mh_socket_stream_t), false).ptr;
     stream->base.base.destructor.free = mh_socket_stream_free;
     stream->base.context = context;
+    mh_context_add_destructor(context, &stream->base.base.destructor);
 
     // Override and enable reading
     stream->base.can_read = true;

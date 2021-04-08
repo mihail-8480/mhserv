@@ -47,8 +47,6 @@ void mh_file_stream_free(void* self) {
     if (this->should_close) {
         fclose(this->file);
     }
-    // Free the memory used by the stream
-    free(self);
 }
 
 void mh_file_stream_seek(void* self, size_t position) {
@@ -77,9 +75,10 @@ size_t mh_file_stream_get_size(void *self) {
 }
 
 mh_stream_t *mh_file_stream_new(mh_context_t* context, FILE* file, bool should_close) {
-    mh_file_stream_t* stream = malloc(sizeof(mh_file_stream_t));
+    mh_file_stream_t* stream = mh_context_allocate(context, sizeof(mh_file_stream_t), false).ptr;
     stream->base.base.destructor.free = mh_file_stream_free;
     stream->base.context = context;
+    mh_context_add_destructor(context, &stream->base.base.destructor);
 
     // Override and enable reading
     stream->base.can_read = true;

@@ -6,10 +6,10 @@
 
 // A structure that represents a memory address with a allocation_size and offset
 typedef struct mh_memory {
-    mh_destructor_t destructor;
     void* address;
     size_t offset;
     size_t size;
+    size_t context_allocation_index;
 } mh_memory_t;
 
 // Allocate new memory, if clear is true all bytes will be set to 0

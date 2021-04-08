@@ -1,36 +1,19 @@
 #include "mh_memory.h"
 
-void mh_memory_free(void* memory) {
-    // Free the memory
-    free(((mh_memory_t*)memory)->address);
-    free(memory);
-}
-
 mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
     // Allocate the memory container and set it's fields
-    mh_memory_t *mem = malloc(sizeof(mh_memory_t));
+    mh_memory_t* mem = mh_context_allocate(context, sizeof(mh_memory_t), false).ptr;
+
     if (mem == NULL) {
         mh_context_error(context, "Couldn't allocate memory for the structure.", mh_memory_new);
         return NULL;
     }
+
+    mh_context_allocation_reference_t ref = mh_context_allocate(context, size, clear);
     mem->size = size;
     mem->offset = 0;
-    mem->destructor.free = mh_memory_free;
-
-    // If clear is true use calloc (zero-everything)
-    if (clear) {
-        mem->address = calloc(1, size);
-    } else {
-        // If clear is false use malloc
-        mem->address = malloc(size);
-    }
-
-    // If the memory wasn't properly allocated, report the error
-    if (mem->address == NULL) {
-        free(mem);
-        mh_context_error(context, "Couldn't allocate memory.", mh_memory_new);
-        return NULL;
-    }
+    mem->address = ref.ptr;
+    mem->context_allocation_index = ref.index;
     return mem;
 }
 
@@ -40,7 +23,11 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
         return;
     }
     // Reallocate to a new pointer to avoid memory leaks on error
-    void *new = realloc(memory->address, size);
+    void *new = mh_context_reallocate(context,
+                                      (mh_context_allocation_reference_t){
+        .index = memory->context_allocation_index,
+        .ptr = memory->address
+                },size);
 
     // If the new pointer is null, report the error
     if (new == NULL) {
@@ -55,7 +42,7 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
-    return (mh_memory_t){.address = address, .size = size, .offset = 0, .destructor.free = NULL};
+    return (mh_memory_t){.address = address, .size = size, .offset = 0};
 }
 
 mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {

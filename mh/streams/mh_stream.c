@@ -71,7 +71,6 @@ void mh_stream_copy_to(mh_stream_t *dest, mh_stream_t *src, size_t size) {
     mh_memory_t* buffer = mh_memory_new(dest_stream->context, size, false);
     mh_stream_read(src, buffer, size);
     mh_stream_write(dest, buffer, buffer->offset);
-    mh_destroy(&buffer->destructor);
 }
 
 size_t mh_stream_write_reference(mh_stream_t *stream, const void *ptr, size_t size) {
