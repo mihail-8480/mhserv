@@ -1,5 +1,4 @@
 #include "mh_http.h"
-#include "../streams/mh_stream.h"
 #include <unistd.h>
 #include <string.h>
 
@@ -7,6 +6,8 @@
 const size_t mh_http_copy_buffer_size = 128;
 // The maximal allocation_size of a request
 const size_t mh_http_max_request_size = 16384;
+
+bool (*mh_http_error_handler)(mh_context_t *, const char *, void *) = NULL;
 
 void mh_http_request_free(void *ptr) {
     mh_http_request_t* self = (mh_http_request_t*)ptr;
@@ -76,11 +77,17 @@ http_request_handler_t http_request_handler = NULL;
 void mh_http_set_request_handler(http_request_handler_t request_handler) {
     http_request_handler = request_handler;
 }
+
+
 void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
     if (http_request_handler == NULL) {
         close(socket);
         mh_context_error(context, "A request handler is not set.", mh_http);
         return;
+    }
+
+    if (mh_http_error_handler != NULL) {
+        mh_context_set_error_handler(context, mh_http_error_handler);
     }
 
     // Create the streams
@@ -137,4 +144,10 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
 
     // Call the request handler
     http_request_handler(context, socket_stream, request);
+}
+
+
+
+void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *)) {
+    mh_http_error_handler = handler;
 }

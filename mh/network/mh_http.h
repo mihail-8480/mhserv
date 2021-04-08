@@ -1,8 +1,8 @@
 #ifndef MHSERV_MH_HTTP_H
 #define MHSERV_MH_HTTP_H
 
-#include "../mh_memory.h"
 #include "mh_tcp.h"
+#include "../mh_memory.h"
 #include "../streams/mh_stream.h"
 
 typedef struct mh_http_request {
@@ -27,4 +27,5 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address);
 typedef void (*http_request_handler_t)(mh_context_t* context, mh_stream_t *socket_stream, mh_http_request_t *request);
 
 void mh_http_set_request_handler(http_request_handler_t request_handler);
+void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *));
 #endif //MHSERV_MH_HTTP_H

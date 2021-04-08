@@ -33,9 +33,17 @@ void mh_tcp_threaded_set(bool use_threads) {
     mh_tcp_threaded = use_threads;
 }
 
+// For error reporting
+mh_context_t *mh_tcp_last_context;
+
+void mh_tcp_sigpipe(int sig) {
+    mh_context_error(mh_tcp_last_context,"Broken pipe.", mh_tcp_sigpipe);
+}
+
 void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
-    // Ignore broken pipes
-    signal(SIGPIPE, SIG_IGN);
+    // Handle broken pipes
+    mh_tcp_last_context = context;
+    signal(SIGPIPE, mh_tcp_sigpipe);
 
     // Create a new TCP socket
     int socket_fd;
