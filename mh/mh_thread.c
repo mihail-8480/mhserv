@@ -12,5 +12,6 @@ void mh_thread_create(mh_thread_action_t action, void *args) {
 }
 
 void mh_thread_exit(void *ret) {
+    // Exit from the thread
     pthread_exit(ret);
 }

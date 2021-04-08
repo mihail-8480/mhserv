@@ -42,7 +42,7 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
-    return (mh_memory_t){.address = address, .size = size, .offset = 0};
+    return (mh_memory_t){.address = address, .size = size, .offset = 0, .context_allocation_index = -1};
 }
 
 mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {

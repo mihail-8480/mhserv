@@ -3,13 +3,20 @@
 #include "stdbool.h"
 #include "stddef.h"
 
+#define MH_DEBUG
+
 // A function pointer that points to the method that is supposed to free memory
 typedef void (*mh_destructor_free_t)(void* ptr);
+
+// A pointer to something allocated
 typedef void* mh_context_allocation_t;
+
+// A context reference to allocated memory
 typedef struct mh_context_allocation_reference {
     mh_context_allocation_t ptr;
     size_t index;
 } mh_context_allocation_reference_t;
+
 // A destructor structure, should be a part of every other structure that needs freeing
 typedef struct mh_destructor {
     // The destructor function
