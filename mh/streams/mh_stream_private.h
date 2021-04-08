@@ -1,12 +1,8 @@
 #ifndef MHSERV_MH_STREAM_PRIVATE_H
 #define MHSERV_MH_STREAM_PRIVATE_H
-#include "mh_error.h"
-#include "mh_memory.h"
+#include "../mh_memory.h"
 #include <stdlib.h>
 #include <string.h>
-
-// Report a stream error
-#define STREAM_ERROR(x) mh_error_report("Stream error: " # x)
 
 // The private stream structure, it contains all the methods required for a stream implementation
 typedef struct mh_stream_private {
@@ -19,6 +15,7 @@ typedef struct mh_stream_private {
     bool can_read;
     bool can_write;
     bool can_seek;
+    mh_context_t* context;
 } mh_stream_private_t;
 
 #endif //MHSERV_MH_STREAM_PRIVATE_H
