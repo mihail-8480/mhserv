@@ -9,21 +9,18 @@ typedef struct mh_tcp_threaded_args {
     int socket;
     mh_socket_address_t address;
     mh_on_connect_t on_connect;
+    mh_context_t* context;
 
 } mh_tcp_threaded_args_t;
 
 void* mh_tcp_threaded_connect_invoke(void* ptr) {
     // Get the arguments
     mh_tcp_threaded_args_t* args = ((mh_tcp_threaded_args_t*)ptr);
-
-    mh_context_t* context = mh_start();
     // Call the on_connect method with the passed arguments
-    args->on_connect(context, args->socket, args->address);
+    args->on_connect(args->context, args->socket, args->address);
 
     // Free the previously allocated memory
-    free(ptr);
-    mh_end(context);
-
+    mh_end(args->context);
     return NULL;
 }
 
@@ -96,20 +93,22 @@ void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clie
             abort();
         }
 
+        mh_context_t* client_context = mh_start();
+
         // If multi-threading is disabled
         if (!mh_tcp_threaded) {
             // Invoke the on_connect function directly
-            mh_context_t* client_context = mh_start();
             on_connect(client_context, client, address);
             mh_end(client_context);
         } else {
             // If multi-threading is enabled, allocate the arguments that get passed to the new list
-            mh_tcp_threaded_args_t* args = calloc(1,sizeof(mh_tcp_threaded_args_t));
+            mh_tcp_threaded_args_t* args = mh_context_allocate(client_context,sizeof(mh_tcp_threaded_args_t), true).ptr;
 
             // Copy the needed arguments
             args->address = address;
             args->socket = client;
             args->on_connect = on_connect;
+            args->context = client_context;
 
             // Create the thread with those arguments
             mh_thread_create(mh_tcp_threaded_connect_invoke, args);
