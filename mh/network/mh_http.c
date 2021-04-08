@@ -2,6 +2,15 @@
 #include <unistd.h>
 #include <string.h>
 
+// Stuff that isn't supposed to be shown to other people
+typedef struct mh_http_request_private {
+    mh_http_request_t base;
+    mh_memory_t* request_memory;
+    mh_stream_t* request_stream;
+    size_t request_header_end;
+    size_t iterations;
+} mh_http_request_private_t;
+
 // The allocation_size of the buffer that is used while copying
 const size_t mh_http_copy_buffer_size = 128;
 // The maximal allocation_size of a request
@@ -26,7 +35,7 @@ void mh_http_request_free(void *ptr) {
 }
 
 mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_t address, mh_memory_t *header) {
-    mh_http_request_t* request = calloc(1, sizeof(mh_http_request_t));
+    mh_http_request_private_t* request = calloc(1, sizeof(mh_http_request_private_t));
 
     // Read the request method
     mh_memory_t method = mh_memory_read_until(header, ' ');
@@ -51,19 +60,19 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
     }
 
     // Create the request
-    *request = (mh_http_request_t) {
-            .address = address,
-            .method = method,
-            .url = url,
-            .version = version,
-            .headers = (mh_memory_t*)memory->address,
-            .headers_count = count,
-            .destructor = mh_http_request_free
+    *request = (mh_http_request_private_t) {
+            .base.address = address,
+            .base.method = method,
+            .base.url = url,
+            .base.version = version,
+            .base.headers = (mh_memory_t*)memory->address,
+            .base.headers_count = count,
+            .base.destructor = mh_http_request_free
     };
 
     // Destroy the memory pointer (the allocated memory is destroyed in the destructor)
     free(memory);
-    return request;
+    return (mh_http_request_t*)request;
 }
 
 
@@ -83,6 +92,16 @@ size_t http_find_end_of_headers(mh_memory_t *mem) {
         }
     }
     return 0;
+}
+
+void mh_http_request_read_content(mh_stream_t* socket_stream, mh_http_request_t* request) {
+    mh_http_request_private_t *private = (mh_http_request_private_t *) request;
+    while (private->request_memory->offset == private->iterations * mh_http_copy_buffer_size) {
+        private->iterations++;
+        mh_stream_copy_to(private->request_stream, socket_stream, mh_http_copy_buffer_size);
+    }
+    request->content = mh_memory_reference(private->request_memory->address + private->request_header_end,
+                                           private->request_memory->offset - private->request_header_end);
 }
 
 void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
@@ -111,7 +130,7 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
     // This is the offset where the header ends
     size_t request_header_end;
 
-    // Read from the client until you encounter the header's end or until you hit the max request_stream allocation_size limit
+    // Read from the client until you encounter the header's end or until you hit the limit
     size_t iterations = 0;
     do {
         iterations++;
@@ -138,17 +157,13 @@ void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
     // Parse the request header
     mh_http_request_t *request = mh_http_request_new(context, address, &header);
     mh_context_add_destructor(context, &request->destructor);
-
-    // If you are supposed to, read the entire post request_stream
-    if (memcmp(request->method.address, "POST", request->method.size) == 0) {
-        while (request_memory->offset == iterations * mh_http_copy_buffer_size) {
-            iterations++;
-            mh_stream_copy_to(request_stream, socket_stream, mh_http_copy_buffer_size);
-        }
-        post = mh_memory_reference(request_memory->address + request_header_end, request_memory->offset - request_header_end);
-    }
-
     request->content = post;
+
+    // Init some private fields
+    mh_http_request_private_t* private = (mh_http_request_private_t*)request;
+    private->request_memory = request_memory;
+    private->request_stream = request_stream;
+    private->request_header_end = request_header_end;
 
     // Call the request handler
     http_request_handler(context, socket_stream, request);
