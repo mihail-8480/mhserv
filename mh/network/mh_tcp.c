@@ -1,5 +1,5 @@
 #include "mh_tcp.h"
-#include "mh_thread.h"
+#include "../mh_thread.h"
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>

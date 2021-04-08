@@ -1,9 +1,9 @@
 #ifndef MHSERV_MH_HTTP_H
 #define MHSERV_MH_HTTP_H
 
-#include "mh_memory.h"
+#include "../mh_memory.h"
 #include "mh_tcp.h"
-#include "mh_stream.h"
+#include "../streams/mh_stream.h"
 
 typedef struct mh_http_request {
     mh_destructor_t destructor;
