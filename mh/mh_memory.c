@@ -1,8 +1,14 @@
 #include "mh_memory.h"
 
+typedef struct mh_memory_private {
+    mh_memory_t base;
+    size_t index;
+} mh_memory_private_t;
+
+
 mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
     // Allocate the memory container and set it's fields
-    mh_memory_t* mem = mh_context_allocate(context, sizeof(mh_memory_t), false).ptr;
+    mh_memory_private_t* mem = mh_context_allocate(context, sizeof(mh_memory_private_t), false).ptr;
 
     if (mem == NULL) {
         mh_context_error(context, "Couldn't allocate memory for the structure.", mh_memory_new);
@@ -10,11 +16,11 @@ mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
     }
 
     mh_context_allocation_reference_t ref = mh_context_allocate(context, size, clear);
-    mem->size = size;
-    mem->offset = 0;
-    mem->address = ref.ptr;
-    mem->context_allocation_index = ref.index;
-    return mem;
+    mem->base.size = size;
+    mem->base.offset = 0;
+    mem->base.address = ref.ptr;
+    mem->index = ref.index;
+    return &mem->base;
 }
 
 void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
@@ -25,7 +31,7 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
     // Reallocate to a new pointer to avoid memory leaks on error
     void *new = mh_context_reallocate(context,
                                       (mh_context_allocation_reference_t){
-        .index = memory->context_allocation_index,
+        .index = ((mh_memory_private_t*)memory)->index,
         .ptr = memory->address
                 },size);
 
@@ -42,7 +48,7 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
-    return (mh_memory_t){.address = address, .size = size, .offset = 0, .context_allocation_index = -1};
+    return (mh_memory_t){.address = address, .size = size, .offset = 0};
 }
 
 mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {

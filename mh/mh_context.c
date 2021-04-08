@@ -50,7 +50,7 @@ mh_context_t *mh_start(void) {
             .destructors = malloc(sizeof(mh_destructor_t*) * 32),
             .error_handler = NULL
     };
-    INFO("(mh_start)-- returned %zu", (size_t)context);
+    INFO("(mh_start)-- returned %zu\n", (size_t)context);
     return &context->base;
 }
 
@@ -128,7 +128,7 @@ void* mh_context_add_destructor(mh_context_t *context, mh_destructor_t *destruct
 
     // Add the destructor to the destructors array
     this->destructors[this->destructor_count++] = destructor;
-    INFO("(mh_context_add_destructor)-- added destructor [%zu] (%zu)\n", this->destructor_count - 1, (size_t)destructor);
+    INFO("(mh_context_add_destructor)-- added destructor [%zu] (%zu)\n" , this->destructor_count - 1, (size_t)destructor);
     return destructor;
 }
 
