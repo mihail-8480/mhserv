@@ -16,6 +16,8 @@ typedef struct mh_tcp_threaded_args {
 void* mh_tcp_threaded_connect_invoke(void* ptr) {
     // Get the arguments
     mh_tcp_threaded_args_t* args = ((mh_tcp_threaded_args_t*)ptr);
+    mh_context_bind_to_thread(args->context);
+
     // Call the on_connect method with the passed arguments
     args->on_connect(args->context, args->socket, args->address);
 
@@ -24,22 +26,18 @@ void* mh_tcp_threaded_connect_invoke(void* ptr) {
     return NULL;
 }
 
-bool mh_tcp_threaded = false;
-
-void mh_tcp_threaded_set(bool use_threads) {
-    mh_tcp_threaded = use_threads;
-}
-
-// For error reporting
-mh_context_t *mh_tcp_last_context;
-
 void mh_tcp_sigpipe(int sig) {
-    mh_context_error(mh_tcp_last_context,"Broken pipe.", mh_tcp_sigpipe);
+    // Try to get the context of the thread where the SIGPIPE happened
+    mh_context_t* context = mh_context_get_from_thread();
+    if (context == NULL) {
+        return;
+    }
+    // Report the error on that context
+    mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
 }
 
 void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
     // Handle broken pipes
-    mh_tcp_last_context = context;
     signal(SIGPIPE, mh_tcp_sigpipe);
 
     // Create a new TCP socket
@@ -93,25 +91,18 @@ void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clie
             abort();
         }
 
-        mh_context_t* client_context = mh_start();
+        mh_context_t *client_context = mh_start();
 
-        // If multi-threading is disabled
-        if (!mh_tcp_threaded) {
-            // Invoke the on_connect function directly
-            on_connect(client_context, client, address);
-            mh_end(client_context);
-        } else {
-            // If multi-threading is enabled, allocate the arguments that get passed to the new list
-            mh_tcp_threaded_args_t* args = mh_context_allocate(client_context,sizeof(mh_tcp_threaded_args_t), true).ptr;
+        // Allocate the arguments that get passed to the new thread
+        mh_tcp_threaded_args_t *args = mh_context_allocate(client_context, sizeof(mh_tcp_threaded_args_t), true).ptr;
 
-            // Copy the needed arguments
-            args->address = address;
-            args->socket = client;
-            args->on_connect = on_connect;
-            args->context = client_context;
+        // Copy the needed arguments
+        args->address = address;
+        args->socket = client;
+        args->on_connect = on_connect;
+        args->context = client_context;
 
-            // Create the thread with those arguments
-            mh_thread_create(mh_tcp_threaded_connect_invoke, args);
-        }
+        // Create the thread with those arguments
+        mh_thread_create(mh_tcp_threaded_connect_invoke, args);
     }
 }
