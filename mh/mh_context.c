@@ -152,3 +152,16 @@ void mh_context_set_error_handler(mh_context_t *context, bool (*handler)(mh_cont
     mh_context_private_t* this = (mh_context_private_t*)context;
     this->error_handler = handler;
 }
+
+__thread mh_context_t* mh_context_current_thread = NULL;
+
+void mh_context_bind_to_thread(mh_context_t *context) {
+    if (mh_context_current_thread != NULL) {
+        mh_end(mh_context_current_thread);
+    }
+    mh_context_current_thread = context;
+}
+
+mh_context_t *mh_context_get_from_thread(void) {
+    return mh_context_current_thread;
+}

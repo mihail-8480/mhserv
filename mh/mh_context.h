@@ -55,4 +55,11 @@ mh_context_allocation_reference_t mh_context_allocate(mh_context_t* context, siz
 
 // Add a destructor that will be called when the context ends
 void* mh_context_add_destructor(mh_context_t* context, mh_destructor_t* destructor);
+
+// Bind a context to the current thread
+void mh_context_bind_to_thread(mh_context_t* context);
+
+// Get a context that was bound to the current thread
+mh_context_t* mh_context_get_from_thread(void);
+
 #endif //MHSERV_MH_CONTEXT_H

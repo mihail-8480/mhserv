@@ -5,18 +5,12 @@
 #include "mh/mh_thread.h"
 
 bool tcp_error(mh_context_t* context, const char* message, void* from) {
-    if (strcmp(message, "Broken pipe.") == 0) {
-        mh_console.error.write(context, "Broken pipe, possible memory leak.\n");
-        return true;
-    }
     mh_console.error.write(context, message);
     mh_console.error.write(context, "\n");
-    return false;
+    return true;
 }
 
 bool http_error(mh_context_t* context, const char* message, void* from) {
-    mh_console.error.write(context, message);
-    mh_console.error.write(context, "\n");
     mh_end(context);
     mh_thread_exit(0);
 }
@@ -76,7 +70,6 @@ int main(void) {
     mh_context_t* context = mh_start();
 
     // Configure
-    mh_tcp_threaded_set(true);
     mh_http_set_request_handler(my_request_handler);
     mh_http_set_error_handler(http_error);
     mh_context_set_error_handler(context, tcp_error);
