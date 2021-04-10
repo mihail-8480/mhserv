@@ -63,16 +63,14 @@ void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_ht
     }
 }
 
+
 int main(void) {
-    // TODO: Add a hashmap for headers
     // TODO: Make the http and tcp servers be based on an instance
-
-    mh_context_t* context = mh_start();
-
     // Configure
+    mh_context_t* context = mh_start();
+    mh_context_set_error_handler(context, tcp_error);
     mh_http_set_request_handler(my_request_handler);
     mh_http_set_error_handler(http_error);
-    mh_context_set_error_handler(context, tcp_error);
 
     // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
     mh_tcp_start(context,8080, 32, mh_http);
