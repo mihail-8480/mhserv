@@ -1,12 +1,9 @@
-#include <string.h>
 #include <unistd.h>
 #include "mh/network/mh_http.h"
-#include "mh/streams/mh_console.h"
 #include "mh/mh_thread.h"
 
 bool tcp_error(mh_context_t* context, const char* message, void* from) {
-    mh_console.error.write(context, message);
-    mh_console.error.write(context, "\n");
+    printf("%s\n", message);
     return true;
 }
 
@@ -45,8 +42,13 @@ void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_ht
 
     // Turn the URL into a C-string
     char url[request->url.size+1];
-    memcpy(url, request->url.address, request->url.size);
-    url[request->url.size] = 0;
+    mh_memory_to_string(url, &request->url);
+
+    mh_memory_t host_mem = mh_map_get(request->headers, MH_REF_CONST("Host"));
+    char host[host_mem.size+1];
+    mh_memory_to_string(host, &host_mem);
+
+    printf("http://%s%s\n", host, url);
 
     /*
      * This is how you would read the rest of the POST content
@@ -65,7 +67,6 @@ void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_ht
 
 
 int main(void) {
-    // TODO: Make the http and tcp servers be based on an instance
     // Configure
     mh_context_t* context = mh_start();
     mh_context_set_error_handler(context, tcp_error);

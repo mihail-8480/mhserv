@@ -4,14 +4,14 @@
 #include "mh_tcp.h"
 #include "../mh_memory.h"
 #include "../streams/mh_stream.h"
+#include "../collections/mh_map.h"
 
 // A http request
 typedef struct mh_http_request {
     mh_memory_t method;
     mh_memory_t url;
     mh_memory_t version;
-    mh_memory_t *headers;
-    size_t headers_count;
+    mh_map_t* headers;
     mh_socket_address_t address;
     mh_memory_t content;
 } mh_http_request_t;

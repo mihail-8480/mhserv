@@ -78,3 +78,8 @@ size_t mh_memory_index_of(mh_memory_t *mem, char c) {
     }
     return -1;
 }
+
+void mh_memory_to_string(char *dest, mh_memory_t *mem) {
+    memcpy(dest, mem->address, mem->size);
+    dest[mem->size] = 0;
+}

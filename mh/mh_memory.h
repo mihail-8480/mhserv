@@ -3,6 +3,7 @@
 #include "mh_context.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 // A structure that represents a memory address with a allocation_size and offset
 typedef struct mh_memory {
@@ -25,4 +26,11 @@ size_t mh_memory_index_of(mh_memory_t* mem, char c);
 
 // Copy memory from the current offset to the character and move the current offset
 mh_memory_t mh_memory_read_until(mh_memory_t* mem, char c);
+
+// Create a string
+void mh_memory_to_string(char* dest, mh_memory_t* mem);
+
+#define MH_REF_CONST(arr) mh_memory_reference(arr, sizeof(arr)-1)
+#define MH_REF_STRING(str) mh_memory_reference(str, strlen(str)-1)
+
 #endif //MHSERV_MH_MEMORY_H

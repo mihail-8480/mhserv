@@ -3,8 +3,6 @@
 #include "stdbool.h"
 #include "stddef.h"
 
-#define MH_DEBUG
-
 // A function pointer that points to the method that is supposed to free memory
 typedef void (*mh_destructor_free_t)(void* ptr);
 

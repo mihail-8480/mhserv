@@ -1,6 +1,5 @@
 #include "mh_http.h"
 #include <unistd.h>
-#include <string.h>
 
 // Stuff that isn't supposed to be shown to other people
 typedef struct mh_http_request_private {
@@ -53,14 +52,22 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
         ((mh_memory_t*)memory->address)[count] = single;
     }
 
+    // Put the headers into a map
+    mh_map_t *headers = mh_map_new(context);
+    for(size_t i = 0; i < count; i++) {
+        mh_memory_t head = ((mh_memory_t*)memory->address)[i];
+        mh_memory_t key = mh_memory_read_until(&head, ':');
+        mh_memory_t value = mh_memory_reference(head.address+head.offset+1, head.size - (head.offset + 1));
+        mh_map_add(headers,key,value);
+    }
+
     // Create the request
     *request = (mh_http_request_private_t) {
             .base.address = address,
             .base.method = method,
             .base.url = url,
             .base.version = version,
-            .base.headers = (mh_memory_t*)memory->address,
-            .base.headers_count = count,
+            .base.headers = headers
     };
 
     return (mh_http_request_t*)request;
