@@ -1,9 +1,12 @@
 #include <string.h>
 #include "mh_map.h"
+
+// this code is not worth commenting
 typedef struct mh_shitmap {
     mh_map_t base;
     mh_context_t* context;
     mh_memory_t* memory;
+    mh_iterator_t* internal_iterator;
 } mh_shitmap_t;
 
 typedef struct mh_map_iterator {
@@ -11,12 +14,6 @@ typedef struct mh_map_iterator {
     size_t position;
     mh_shitmap_t* map;
 } mh_map_iterator_t;
-
-
-typedef struct mh_key_value_pair {
-    mh_memory_t key;
-    mh_memory_t value;
-} mh_key_value_pair_t;
 
 void mh_map_add(mh_map_t* map, mh_memory_t key, mh_memory_t value) {
     mh_shitmap_t* this = (mh_shitmap_t*) map;
@@ -35,16 +32,17 @@ void mh_map_remove(mh_map_t* map, mh_memory_t key) {
     mh_context_error(this->context, "A shitmap cannot remove elements.", mh_map_remove);
 }
 mh_memory_t mh_map_get(mh_map_t* map, mh_memory_t key) {
-    mh_iterator_t* iterator = mh_collection_get_iterator(&map->collection);
+    mh_shitmap_t* this = (mh_shitmap_t*) map;
+    mh_iterator_start(this->internal_iterator);
     do {
-        mh_key_value_pair_t* kv = ((mh_key_value_pair_t*)mh_iterator_current(iterator).address);
+        mh_key_value_pair_t* kv = ((mh_key_value_pair_t*)mh_iterator_current(this->internal_iterator).address);
         if (kv->key.size != key.size) {
             continue;
         }
         if (memcmp(kv->key.address, key.address, key.size) == 0) {
             return kv->value;
         }
-    } while(mh_iterator_next(iterator));
+    } while(mh_iterator_next(this->internal_iterator));
     return (mh_memory_t){.address = NULL, .size = 0, .offset = 0};
 }
 
@@ -90,7 +88,9 @@ mh_map_t* mh_map_new(mh_context_t *context) {
             .context = context,
             .memory = memory,
             .base.collection.get_iterator = mh_map_get_iterator,
-            .base.collection.destructor = NULL
+            .base.collection.destructor = NULL,
     };
+    shitmap->internal_iterator = mh_map_get_iterator(&shitmap->base.collection);
+
     return &shitmap->base;
 }
