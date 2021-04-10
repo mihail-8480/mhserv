@@ -19,10 +19,16 @@ typedef struct mh_http_request {
 // End of line
 #define ENDL "\r\n"
 
-// Macros for easier writing
-#define SOCKET_STREAM socket_stream
-#define ECHO(str) mh_stream_write_reference(SOCKET_STREAM, str, sizeof(str)-1)
+// Macros for easier writing/reading
 
+// The socket stream variable
+#define SOCKET_STREAM socket_stream
+// The request variable
+#define REQUEST request
+// Write a string literal into SOCKET_STREAM
+#define ECHO(str) mh_stream_write_reference(SOCKET_STREAM, str, sizeof(str)-1)
+// Get a header from REQUEST
+#define HEADER(str) mh_map_get(REQUEST->headers, MH_REF_CONST(str))
 // The HTTP protocol
 void mh_http(mh_context_t* context, int socket, mh_socket_address_t address);
 
