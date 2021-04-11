@@ -17,32 +17,46 @@ typedef struct mh_http_request {
 } mh_http_request_t;
 
 // End of line
-#define ENDL "\r\n"
+#define MH_ENDL "\r\n"
 
-// Macros for easier writing/reading
+// The entry point of a http handler library
+#define MH_HTTP_HANDLE mh_http_handle
+
+// Turn an identifier into a string
+#define MH_STRINGIFY(x) #x
+
+// Turn a value of a macro into a string
+#define MH_MACRO_STRINGIFY(x) MH_STRINGIFY(x)
 
 // The socket stream variable
-#define SOCKET_STREAM socket_stream
-// The request variable
-#define REQUEST request
-// Write a string literal into SOCKET_STREAM
-#define ECHO(str) mh_stream_write_reference(SOCKET_STREAM, str, sizeof(str)-1)
-// Write a string into SOCKET_STREAM
-#define ECHO_STR(str) mh_stream_write_reference(SOCKET_STREAM, str, strlen(str))
+#define MH_SOCKET_STREAM socket_stream
 
-// Get a header from REQUEST
-#define HEADER(str) mh_map_get(REQUEST->headers, MH_REF_CONST(str))
+// The request variable
+#define MH_REQUEST request
+
+// The default arguments of a HTTP request handler
+#define MH_HTTP_DEFAULT_ARGS mh_context_t* context, mh_stream_t* MH_SOCKET_STREAM, mh_http_request_t* MH_REQUEST
+
+// Write a string literal into MH_SOCKET_STREAM
+#define MH_ECHO(str) mh_stream_write_reference(MH_SOCKET_STREAM, str, sizeof(str)-1)
+// Write a string into MH_SOCKET_STREAM
+#define MH_ECHO_STR(str) mh_stream_write_reference(MH_SOCKET_STREAM, str, strlen(str))
+
+// Get a header from MH_REQUEST
+#define MH_HEADER(str) mh_map_get(MH_REQUEST->headers, MH_REF_CONST(str))
+
 // The HTTP protocol
 void mh_http(mh_context_t* context, int socket, mh_socket_address_t address);
 
 // A HTTP request handler
-typedef void (*http_request_handler_t)(mh_context_t* context, mh_stream_t *SOCKET_STREAM, mh_http_request_t *request);
+typedef void (*http_request_handler_t)(MH_HTTP_DEFAULT_ARGS);
 
 // Set a request handler
 void mh_http_set_request_handler(http_request_handler_t request_handler);
 
 // Set an error handler
-void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *));
+
+void mh_http_set_error_handler(mh_error_handler_t handler);
 
 // Finish reading the entire post content into memory
 void mh_http_request_read_content(mh_stream_t* socket_stream, mh_http_request_t* request);

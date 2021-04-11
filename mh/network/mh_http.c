@@ -28,7 +28,7 @@ void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, voi
 }
 
 mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_t address, mh_memory_t *header) {
-    mh_http_request_private_t* request = mh_context_allocate(context, sizeof(mh_http_request_private_t), true).ptr;
+    MH_THIS(mh_http_request_private_t*, mh_context_allocate(context, sizeof(mh_http_request_private_t), true).ptr);
 
     // Read the request method
     mh_memory_t method = mh_memory_read_until(header, ' ');
@@ -62,7 +62,7 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
     }
 
     // Create the request
-    *request = (mh_http_request_private_t) {
+    *this = (mh_http_request_private_t) {
             .base.address = address,
             .base.method = method,
             .base.url = url,
@@ -70,7 +70,7 @@ mh_http_request_t *mh_http_request_new(mh_context_t* context, mh_socket_address_
             .base.headers = headers
     };
 
-    return (mh_http_request_t*)request;
+    return (mh_http_request_t*)this;
 }
 
 

@@ -3,6 +3,9 @@
 #include "stdbool.h"
 #include "stddef.h"
 
+// Define a variable named this
+#define MH_THIS(type, expression) type this = (type)expression
+
 // A function pointer that points to the method that is supposed to free memory
 typedef void (*mh_destructor_free_t)(void* ptr);
 

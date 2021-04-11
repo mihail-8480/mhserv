@@ -8,8 +8,8 @@ typedef struct mh_socket_stream {
     int socket;
 } mh_socket_stream_t;
 
-void mh_socket_stream_read(void* self, mh_memory_t* buffer, size_t count) {
-    mh_socket_stream_t* this = (mh_socket_stream_t*)self;
+void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_socket_stream_t*, stream);
 
     // Read from the socket
     ssize_t size = read(this->socket, buffer->address, count);
@@ -24,8 +24,8 @@ void mh_socket_stream_read(void* self, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_socket_stream_write(void* self, mh_memory_t* buffer, size_t count) {
-    mh_socket_stream_t* this = (mh_socket_stream_t*)self;
+void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_socket_stream_t*, stream);
 
     // Read from the socket
     ssize_t size = write(this->socket, buffer->address, count);
@@ -40,8 +40,8 @@ void mh_socket_stream_write(void* self, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_socket_stream_free(void* self) {
-    mh_socket_stream_t* this = (mh_socket_stream_t*)self;
+void mh_socket_stream_free(void* stream) {
+    MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
     shutdown(this->socket, SHUT_WR);
     // Close the socket
@@ -49,25 +49,26 @@ void mh_socket_stream_free(void* self) {
 }
 
 mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
-    mh_socket_stream_t* stream = mh_context_allocate(context, sizeof(mh_socket_stream_t), false).ptr;
-    stream->base.base.destructor.free = mh_socket_stream_free;
-    stream->base.context = context;
-    mh_context_add_destructor(context, &stream->base.base.destructor);
+    MH_THIS(mh_socket_stream_t*, mh_context_allocate(context, sizeof(mh_socket_stream_t), false).ptr);
+
+    this->base.base.destructor.free = mh_socket_stream_free;
+    this->base.context = context;
+    mh_context_add_destructor(context, &this->base.base.destructor);
 
     // Override and enable reading
-    stream->base.can_read = true;
-    stream->base.read = mh_socket_stream_read;
+    this->base.can_read = true;
+    this->base.read = mh_socket_stream_read;
 
     // Override and enable writing
-    stream->base.can_write = true;
-    stream->base.write = mh_socket_stream_write;
+    this->base.can_write = true;
+    this->base.write = mh_socket_stream_write;
 
     // Set to null and disable seeking
-    stream->base.can_seek = false;
-    stream->base.seek = NULL;
-    stream->base.get_position = NULL;
-    stream->base.get_size = NULL;
+    this->base.can_seek = false;
+    this->base.seek = NULL;
+    this->base.get_position = NULL;
+    this->base.get_size = NULL;
     
-    stream->socket = socket;
-    return (mh_stream_t*)stream;
+    this->socket = socket;
+    return (mh_stream_t*)this;
 }

@@ -15,14 +15,14 @@ typedef struct mh_tcp_threaded_args {
 
 void* mh_tcp_threaded_connect_invoke(void* ptr) {
     // Get the arguments
-    mh_tcp_threaded_args_t* args = ((mh_tcp_threaded_args_t*)ptr);
-    mh_context_bind_to_thread(args->context);
+    MH_THIS(mh_tcp_threaded_args_t*, ptr);
+    mh_context_bind_to_thread(this->context);
 
     // Call the on_connect method with the passed arguments
-    args->on_connect(args->context, args->socket, args->address);
+    this->on_connect(this->context, this->socket, this->address);
 
     // Free the previously allocated memory
-    mh_end(args->context);
+    mh_end(this->context);
     return NULL;
 }
 

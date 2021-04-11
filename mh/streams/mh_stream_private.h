@@ -7,11 +7,11 @@
 // The private stream structure, it contains all the methods required for a stream implementation
 typedef struct mh_stream_private {
     mh_stream_t base;
-    void (*write)(void* self, mh_memory_t* buffer, size_t count);
-    void (*read)(void* self, mh_memory_t* buffer, size_t count);
-    void (*seek)(void* self, size_t position);
-    size_t (*get_position)(void *self);
-    size_t (*get_size)(void* self);
+    void (*write)(void* stream, mh_memory_t* buffer, size_t count);
+    void (*read)(void* stream, mh_memory_t* buffer, size_t count);
+    void (*seek)(void* stream, size_t position);
+    size_t (*get_position)(void *stream);
+    size_t (*get_size)(void* stream);
     bool can_read;
     bool can_write;
     bool can_seek;

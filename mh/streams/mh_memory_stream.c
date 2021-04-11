@@ -8,8 +8,8 @@ typedef struct mh_memory_stream {
     bool fixed;
 } mh_memory_stream_t;
 
-void mh_memory_stream_read(void* self, mh_memory_t* buffer, size_t count) {
-    mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+void mh_memory_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_memory_stream_t*, stream);
     // Check if the memory that is being read is actually allocated
     if (this->memory->offset + count > this->memory->size) {
         // If not, report an error
@@ -29,8 +29,8 @@ static inline void mh_memory_stream_increase(mh_memory_stream_t* this, size_t mi
     mh_memory_resize(this->base.context, this->memory, increase);
 }
 
-void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
-    mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+void mh_memory_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_memory_stream_t*, stream);
     // If the array is supposed to be fixed and there isn't enough space
     if (this->memory->offset + count > this->memory->size) {
         if (this->fixed) {
@@ -49,9 +49,9 @@ void mh_memory_stream_write(void* self, mh_memory_t* buffer, size_t count) {
 }
 
 
-void mh_memory_stream_seek(void* self, size_t position) {
+void mh_memory_stream_seek(void* stream, size_t position) {
     // Set the memory offset
-    mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+    MH_THIS(mh_memory_stream_t*, stream);
     if (this->memory->offset + position < this->memory->size) {
         mh_context_error(this->base.context,"The position is larger than the memory allocation_size, cannot seek.", mh_memory_stream_seek);
         return;
@@ -60,47 +60,46 @@ void mh_memory_stream_seek(void* self, size_t position) {
     this->memory->offset = position;
 }
 
-size_t mh_memory_stream_get_position(void *self) {
-    mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+size_t mh_memory_stream_get_position(void *stream) {
+    MH_THIS(mh_memory_stream_t*, stream);
     // Get the memory offset
     return this->memory->offset;
 }
-size_t mh_memory_stream_get_size(void* self) {
-    mh_memory_stream_t* this = (mh_memory_stream_t*)self;
+size_t mh_memory_stream_get_size(void* stream) {
+    MH_THIS(mh_memory_stream_t*, stream);
     // Get the memory allocation_size
     return this->memory->size;
 }
 
 
 mh_memory_t *mh_memory_stream_get_memory(mh_stream_t *stream) {
-    mh_memory_stream_t* this = (mh_memory_stream_t*)stream;
-
-    // Get the memory address, offset and allocation_size
+    MH_THIS(mh_memory_stream_t*, stream);
     return this->memory;
 }
 
 mh_stream_t *mh_memory_stream_new(mh_context_t* context, size_t size, bool fixed) {
-    mh_memory_stream_t* stream = mh_context_allocate(context, sizeof(mh_memory_stream_t), false).ptr;
-    stream->base.base.destructor.free = NULL;
-    stream->base.context = context;
-    mh_context_add_destructor(context, &stream->base.base.destructor);
+    MH_THIS(mh_memory_stream_t*, mh_context_allocate(context, sizeof(mh_memory_stream_t), false).ptr);
+
+    this->base.base.destructor.free = NULL;
+    this->base.context = context;
+    mh_context_add_destructor(context, &this->base.base.destructor);
 
     // Override and enable reading
-    stream->base.can_read = true;
-    stream->base.read = mh_memory_stream_read;
+    this->base.can_read = true;
+    this->base.read = mh_memory_stream_read;
 
     // Override and enable writing
-    stream->base.can_write = true;
-    stream->base.write = mh_memory_stream_write;
+    this->base.can_write = true;
+    this->base.write = mh_memory_stream_write;
 
     // Override and enable seeking
-    stream->base.can_seek = true;
-    stream->base.seek = mh_memory_stream_seek;
-    stream->base.get_position = mh_memory_stream_get_position;
-    stream->base.get_size = mh_memory_stream_get_size;
+    this->base.can_seek = true;
+    this->base.seek = mh_memory_stream_seek;
+    this->base.get_position = mh_memory_stream_get_position;
+    this->base.get_size = mh_memory_stream_get_size;
 
     // Init the default values
-    stream->memory = mh_memory_new(context, size, true);
-    stream->fixed = fixed;
-    return (mh_stream_t*)stream;
+    this->memory = mh_memory_new(context, size, true);
+    this->fixed = fixed;
+    return (mh_stream_t*)this;
 }
