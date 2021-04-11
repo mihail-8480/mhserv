@@ -22,13 +22,13 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size);
 mh_memory_t mh_memory_reference(void* address, size_t size);
 
 // Find the index of a character in memory
-size_t mh_memory_index_of(mh_memory_t mem, char c);
+size_t mh_memory_index_of(mh_memory_t memory, char c);
 
 // Copy memory from the current offset to the character and move the current offset
-mh_memory_t mh_memory_read_until(mh_memory_t* mem, char c);
+mh_memory_t mh_memory_read_until(mh_memory_t* memory, char c);
 
 // Create a string
-void mh_memory_to_string(char* dest, mh_memory_t mem);
+void mh_memory_to_string(char* dest, mh_memory_t memory);
 
 // Compare two arrays
 bool mh_memory_is_equal(mh_memory_t first, mh_memory_t second);

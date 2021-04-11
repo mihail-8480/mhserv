@@ -1,53 +1,52 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
 
-bool mh_stream_seek(mh_stream_t *ptr, size_t position) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
-    if (stream->can_seek) {
-        stream->seek(stream, position);
+bool mh_stream_seek(mh_stream_t *stream, size_t position) {
+    MH_THIS(mh_stream_private_t*, stream);
+    if (this->can_seek) {
+        this->seek(this, position);
         return true;
     }
     return false;
 }
 
-void mh_stream_read(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
+void mh_stream_read(mh_stream_t *stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_stream_private_t*, stream);
 
-    if (stream->can_read) {
-        stream->read(stream, buffer, count);
+    if (this->can_read) {
+        this->read(this, buffer, count);
         return;
     }
 
     // Cannot read, report error
-    mh_context_error(stream->context, "Cannot read from this stream.", mh_stream_read);
+    mh_context_error(this->context, "Cannot read from this stream.", mh_stream_read);
 }
 
-void mh_stream_write(mh_stream_t *ptr, mh_memory_t* buffer, size_t count) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
-
-    if (stream->can_write) {
-        stream->write(stream, buffer, count);
+void mh_stream_write(mh_stream_t *stream, mh_memory_t* buffer, size_t count) {
+    MH_THIS(mh_stream_private_t*, stream);
+    if (this->can_write) {
+        this->write(this, buffer, count);
         return;
     }
 
     // Cannot write.
-    mh_context_error(stream->context, "Cannot write to this stream.", mh_stream_read);
+    mh_context_error(this->context, "Cannot write to this stream.", mh_stream_read);
 }
 
-size_t mh_stream_get_position(mh_stream_t *ptr) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
+size_t mh_stream_get_position(mh_stream_t *stream) {
+    MH_THIS(mh_stream_private_t*, stream);
     // Get the current position if it's possible
-    if (stream->can_seek) {
-        return stream->get_position(stream);
+    if (this->can_seek) {
+        return this->get_position(this);
     }
     return -1;
 }
 
-size_t mh_stream_get_size(mh_stream_t *ptr) {
-    mh_stream_private_t* stream = (mh_stream_private_t*)ptr;
+size_t mh_stream_get_size(mh_stream_t *stream) {
+    MH_THIS(mh_stream_private_t*, stream);
     // Get the current allocation_size if it's possible
-    if (stream->can_seek) {
-        return stream->get_size(stream);
+    if (this->can_seek) {
+        return this->get_size(this);
     }
     return -1;
 }

@@ -16,7 +16,7 @@ typedef struct mh_map_iterator {
 } mh_map_iterator_t;
 
 void mh_map_add(mh_map_t* map, mh_memory_t key, mh_memory_t value) {
-    mh_shitmap_t* this = (mh_shitmap_t*) map;
+    MH_THIS(mh_shitmap_t*, map);
     if (this->memory->offset + sizeof(mh_key_value_pair_t) >= this->memory->size) {
         mh_memory_resize(this->context, this->memory, this->memory->size * 2);
     }
@@ -28,11 +28,13 @@ void mh_map_add(mh_map_t* map, mh_memory_t key, mh_memory_t value) {
 }
 
 void mh_map_remove(mh_map_t* map, mh_memory_t key) {
-    mh_shitmap_t* this = (mh_shitmap_t*) map;
+    MH_THIS(mh_shitmap_t*, map);
     mh_context_error(this->context, "A shitmap cannot remove elements.", mh_map_remove);
 }
+
+
 mh_memory_t mh_map_get(mh_map_t* map, mh_memory_t key) {
-    mh_shitmap_t* this = (mh_shitmap_t*) map;
+    MH_THIS(mh_shitmap_t*, map);
     mh_iterator_start(this->internal_iterator);
     do {
         mh_key_value_pair_t* kv = ((mh_key_value_pair_t*)mh_iterator_current(this->internal_iterator).address);
@@ -51,12 +53,12 @@ bool mh_map_contains(mh_map_t* map, mh_memory_t key) {
 }
 
 void mh_map_iterator_start(mh_iterator_t* iterator) {
-    mh_map_iterator_t* this = (mh_map_iterator_t*)iterator;
+    MH_THIS(mh_map_iterator_t*, iterator);
     this->position = 0;
 }
 
 bool mh_map_iterator_next(mh_iterator_t* iterator) {
-    mh_map_iterator_t* this = (mh_map_iterator_t*)iterator;
+    MH_THIS(mh_map_iterator_t*, iterator);
     if (sizeof(mh_key_value_pair_t)*(this->position+1) < this->map->memory->offset) {
         this->position++;
         return true;
@@ -65,11 +67,11 @@ bool mh_map_iterator_next(mh_iterator_t* iterator) {
 }
 
 mh_memory_t mh_map_iterator_current(mh_iterator_t* iterator) {
-    mh_map_iterator_t* this = (mh_map_iterator_t*)iterator;
+    MH_THIS(mh_map_iterator_t*, iterator);
     return mh_memory_reference(&((mh_key_value_pair_t*)this->map->memory->address)[this->position], sizeof (mh_key_value_pair_t));
 }
 mh_iterator_t* mh_map_get_iterator(mh_collection_t* collection) {
-    mh_shitmap_t* this = (mh_shitmap_t*)collection;
+    MH_THIS(mh_shitmap_t*, collection);
     mh_map_iterator_t* iterator = mh_context_allocate(this->context, sizeof(mh_key_value_pair_t), false).ptr;
     *iterator = (mh_map_iterator_t) {
             .base.current = mh_map_iterator_current,
@@ -82,15 +84,14 @@ mh_iterator_t* mh_map_get_iterator(mh_collection_t* collection) {
 }
 
 mh_map_t* mh_map_new(mh_context_t *context) {
-    mh_shitmap_t* shitmap = mh_context_allocate(context, sizeof(mh_shitmap_t), false).ptr;
+    MH_THIS(mh_shitmap_t*, mh_context_allocate(context, sizeof(mh_shitmap_t), false).ptr);
     mh_memory_t* memory = mh_memory_new(context, sizeof(mh_memory_t)*16, false);
-    *shitmap = (mh_shitmap_t) {
+    *this = (mh_shitmap_t) {
             .context = context,
             .memory = memory,
             .base.collection.get_iterator = mh_map_get_iterator,
             .base.collection.destructor = NULL,
     };
-    shitmap->internal_iterator = mh_map_get_iterator(&shitmap->base.collection);
-
-    return &shitmap->base;
+    this->internal_iterator = mh_map_get_iterator(&this->base.collection);
+    return &this->base;
 }
