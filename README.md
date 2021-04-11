@@ -28,10 +28,11 @@ If you have your own handler library you can load it in the same way.
 ## Making your own handler
 Create a new dynamic library that uses `libmh.so` and declares a function that looks like this:
 ```c
-#include "mh/network/mh_http.h"
+#include "mh/network/mh_http_handler.h"
 
-void MH_HTTP_HANDLE(MH_HTTP_DEFAULT_ARGS) {
+void mh_http_handler(mh_context_t* context, mh_stream_t* socket_stream, mh_http_request_t* request) {
     // your code here
 }
+
 ```
 See `example.c` for reference.

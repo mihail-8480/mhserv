@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     mh_context_t* context = mh_start();
     mh_context_set_error_handler(context, program_error);
     unsigned long port = 8080;
-    const char* library_function = MH_MACRO_STRINGIFY(MH_HTTP_HANDLE);
+    const char* library_function = "mh_http_handle";
     // Check if we should change the default port
     const char* port_env = getenv("MH_PORT");
     if (port_env != NULL) {
