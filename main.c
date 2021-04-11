@@ -16,6 +16,18 @@ bool http_error(mh_context_t* context, const char* message, void* from) {
 int main(int argc, char** argv) {
     mh_context_t* context = mh_start();
     mh_context_set_error_handler(context, program_error);
+    unsigned long port = 8080;
+    const char* library_function = MH_MACRO_STRINGIFY(MH_HTTP_HANDLE);
+    // Check if we should change the default port
+    const char* port_env = getenv("MH_PORT");
+    if (port_env != NULL) {
+        port = strtoul(port_env, NULL, 10);
+    }
+    // Check if we should change the default library function
+    const char* lib_function_env = getenv("MH_LIB_FUNCTION");
+    if (lib_function_env != NULL) {
+        library_function = lib_function_env;
+    }
 
     // Check if the command line arguments are correct
     if (argc != 2) {
@@ -26,8 +38,6 @@ int main(int argc, char** argv) {
     // Load the specified library and configure the http server
     mh_handle_t* library = mh_handle_new(context, argv[1]);
     mh_http_set_error_handler(http_error);
-    mh_http_set_request_handler(mh_handle_find_symbol(library, MH_MACRO_STRINGIFY(MH_HTTP_HANDLE)));
-
-    // Start a TCP server on port 8080, with 32 max clients and with the on_connect method
-    mh_tcp_start(context,8080, 32, mh_http);
+    mh_http_set_request_handler(mh_handle_find_symbol(library, library_function));
+    mh_tcp_start(context, port, 32, mh_http);
 }
