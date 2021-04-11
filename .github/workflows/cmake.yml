@@ -21,3 +21,9 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: cmake . && make
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+       name: libs
+       path: "*.so"
+       if-no-files-found: ignore
