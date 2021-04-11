@@ -41,11 +41,11 @@ void send_file(mh_context_t* context, mh_stream_t *socket_stream, const char* fi
 void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_http_request_t *request) {
 
     char url[request->url.size+1];
-    mh_memory_to_string(url, &request->url);
+    mh_memory_to_string(url, request->url);
 
     mh_memory_t host_mem = HEADER("Host");
     char host[host_mem.size+1];
-    mh_memory_to_string(host, &host_mem);
+    mh_memory_to_string(host, host_mem);
 
     printf("http://%s%s\n", host, url);
 

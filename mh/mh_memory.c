@@ -54,7 +54,7 @@ mh_memory_t mh_memory_reference(void *address, size_t size) {
 mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {
 
     // Copy the memory into a c-string from the current offset, to the index of the character
-    size_t index = mh_memory_index_of(mem,c);
+    size_t index = mh_memory_index_of(*mem,c);
     if (index == -1) {
         return mh_memory_reference(NULL, 0);
     }
@@ -67,11 +67,11 @@ mh_memory_t mh_memory_read_until(mh_memory_t *mem, char c) {
     return ref;
 }
 
-size_t mh_memory_index_of(mh_memory_t *mem, char c) {
-    char* str = (char*)mem->address;
+size_t mh_memory_index_of(mh_memory_t mem, char c) {
+    char* str = (char*)mem.address;
 
     // Find the index of a character in the memory
-    for(size_t i = mem->offset; i < mem->size; i++) {
+    for(size_t i = mem.offset; i < mem.size; i++) {
         if (str[i] == c) {
             return i;
         }
@@ -79,7 +79,7 @@ size_t mh_memory_index_of(mh_memory_t *mem, char c) {
     return -1;
 }
 
-void mh_memory_to_string(char *dest, mh_memory_t *mem) {
-    memcpy(dest, mem->address, mem->size);
-    dest[mem->size] = 0;
+void mh_memory_to_string(char *dest, mh_memory_t mem) {
+    memcpy(dest, mem.address, mem.size);
+    dest[mem.size] = 0;
 }
