@@ -20,12 +20,12 @@ jobs:
     - name: Upload Libraries
       uses: actions/upload-artifact@v2.2.3
       with:
-       name: libs
+       name: libs-bin
        path: ${{github.workspace}}/build/*.so
        if-no-files-found: ignore
     - name: Upload Executable
       uses: actions/upload-artifact@v2.2.3
       with:
-       name: libs
+       name: mhserv-bin
        path: ${{github.workspace}}/build/mhserv
        if-no-files-found: ignore
