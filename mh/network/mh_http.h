@@ -27,6 +27,9 @@ typedef struct mh_http_request {
 #define REQUEST request
 // Write a string literal into SOCKET_STREAM
 #define ECHO(str) mh_stream_write_reference(SOCKET_STREAM, str, sizeof(str)-1)
+// Write a string into SOCKET_STREAM
+#define ECHO_STR(str) mh_stream_write_reference(SOCKET_STREAM, str, strlen(str))
+
 // Get a header from REQUEST
 #define HEADER(str) mh_map_get(REQUEST->headers, MH_REF_CONST(str))
 // The HTTP protocol
