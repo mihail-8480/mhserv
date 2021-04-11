@@ -9,7 +9,7 @@ find_package(Threads REQUIRED)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -fwhole-program")
+set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 # libmh.so
 add_library(mh SHARED mh/streams/mh_stream.c mh/streams/mh_memory_stream.c mh/mh_memory.c mh/network/mh_tcp.c mh/streams/mh_socket_stream.c mh/network/mh_http.c mh/mh_thread.c mh/streams/mh_file_stream.c mh/mh_context.c mh/collections/mh_shitmap.c mh/collections/mh_collection.c mh/mh_handle.c)
