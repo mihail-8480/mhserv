@@ -25,5 +25,5 @@ jobs:
       uses: actions/upload-artifact@v2.2.3
       with:
        name: libs
-       path: "*.so"
+       path: ${{github.workspace}}/build/*.so
        if-no-files-found: ignore
