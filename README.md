@@ -2,12 +2,11 @@
 A webserver that i made.
 
 ## Building
-You need `gcc`, `cmake` and `make` installed.
+To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
-After that you can execute this commands:
+The build command is:
 ```sh
-cmake .
-make
+cmake . && make
 ```
 
 ## Running
@@ -15,7 +14,7 @@ To make a simple test if it's built correctly you can run `mhserv` with `libexam
 ```sh
 ./mhserv libexample.so
 ```
-Then go to the [default URL](http://localhost:8080/), if you see a web page - it works.
+Then go to the [default URL](http://localhost:8080/), if a webpage is displayed - it works!
 
 If you have your own handler library you can load it in the same way.
 
