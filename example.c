@@ -1,6 +1,6 @@
-#include "mh/network/mh_http.h"
+#include "mh/network/mh_http_handler.h"
 
-void MH_HTTP_HANDLE(MH_HTTP_DEFAULT_ARGS) {
+void mh_http_handle(mh_context_t* context, mh_stream_t* socket_stream, mh_http_request_t* request) {
     MH_ECHO("HTTP/1.1 200 OK" MH_ENDL);
     MH_ECHO("Content-Type: text/html; charset=UTF-8" MH_ENDL);
     MH_ECHO("Connection: close" MH_ENDL);
