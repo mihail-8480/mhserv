@@ -34,3 +34,4 @@ void MH_HTTP_HANDLE(MH_HTTP_DEFAULT_ARGS) {
     // your code here
 }
 ```
+See `example.c` for reference.
