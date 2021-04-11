@@ -4,8 +4,9 @@ A webserver that i made.
 ## Building
 To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
-The build command is:
 ```sh
+git clone https://github.com/mihail-8480/mhserv
+cd mhserv
 cmake . && make
 ```
 
