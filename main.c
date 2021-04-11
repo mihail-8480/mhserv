@@ -47,11 +47,12 @@ void my_request_handler(mh_context_t* context, mh_stream_t *socket_stream, mh_ht
     char host[host_mem.size+1];
     mh_memory_to_string(host, host_mem);
 
+
     printf("http://%s%s\n", host, url);
 
     /*
      * This is how you would read the rest of the POST content
-     * if (memcmp(request->method.address, "POST", 4) == 0) {
+     * if (mh_memory_is_equal(request->method, MH_REF_CONST("POST"))) {
      *  mh_http_request_read_content(socket_stream, request);
      * }
      */

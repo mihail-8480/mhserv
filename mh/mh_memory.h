@@ -30,7 +30,13 @@ mh_memory_t mh_memory_read_until(mh_memory_t* mem, char c);
 // Create a string
 void mh_memory_to_string(char* dest, mh_memory_t mem);
 
+// Compare two arrays
+bool mh_memory_is_equal(mh_memory_t first, mh_memory_t second);
+
+// Get a mh_memory reference from a fixed size array
 #define MH_REF_CONST(arr) mh_memory_reference(arr, sizeof(arr)-1)
+
+// Get a mh_memory reference from a null terminated string
 #define MH_REF_STRING(str) mh_memory_reference(str, strlen(str)-1)
 
 #endif //MHSERV_MH_MEMORY_H
