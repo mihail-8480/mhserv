@@ -1,7 +1,9 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
 #include <unistd.h>
+#ifndef WIN32
 #include <netdb.h>
+#endif
 // The socket stream structure
 typedef struct mh_socket_stream {
     mh_stream_private_t base;
@@ -43,7 +45,9 @@ void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
 void mh_socket_stream_free(void* stream) {
     MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
+#ifndef WIN32
     shutdown(this->socket, SHUT_WR);
+#endif
     // Close the socket
     close(this->socket);
 }

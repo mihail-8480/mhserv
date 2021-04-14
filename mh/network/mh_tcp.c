@@ -1,8 +1,10 @@
 #include "mh_tcp.h"
 #include "../mh_thread.h"
-#include <signal.h>
 #include <stdlib.h>
-#include <stdio.h>
+
+#ifdef WIN32
+#include <winsock2.h>
+#endif
 
 // The new thread's arguments
 typedef struct mh_tcp_threaded_args {
@@ -26,6 +28,10 @@ void* mh_tcp_threaded_connect_invoke(void* ptr) {
     return NULL;
 }
 
+#ifndef WIN32
+#include <stdio.h>
+#include <signal.h>
+
 void mh_tcp_sigpipe(int sig) {
     // Try to get the context of the thread where the SIGPIPE happened
     mh_context_t* context = mh_context_get_from_thread();
@@ -39,7 +45,6 @@ void mh_tcp_sigpipe(int sig) {
 void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
     // Handle broken pipes
     signal(SIGPIPE, mh_tcp_sigpipe);
-
     // Create a new TCP socket
     int socket_fd;
     int opt = 1;
@@ -106,3 +111,59 @@ void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clie
         mh_thread_create(mh_tcp_threaded_connect_invoke, args);
     }
 }
+#else
+#pragma comment(lib,"ws2_32.lib")
+void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
+    WSADATA wsa;
+    SOCKET sock;
+    mh_socket_address_t server;
+
+    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+        mh_context_error(context, "WSAStartup failed.", mh_tcp_start);
+        abort();
+    }
+
+
+    if((sock = socket(AF_INET , SOCK_STREAM , 0 )) == INVALID_SOCKET) {
+        mh_context_error(context, "A socket could not be created successfully.", mh_tcp_start);
+        abort();
+    }
+
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(port);
+
+    if(bind(sock , (struct sockaddr *)&server , sizeof(server)) == SOCKET_ERROR) {
+        mh_context_error(context, "Could not use the specified address.", mh_tcp_start);
+        abort();
+    }
+
+    listen(sock , max_clients);
+
+    int addrLen = sizeof(struct sockaddr_in);
+
+
+    while(true) {
+        mh_socket_address_t address;
+        SOCKET client = accept(sock, (struct sockaddr *) &address, &addrLen);
+        if (client == INVALID_SOCKET) {
+            mh_context_error(context, "Could not accept client.", mh_tcp_start);
+            abort();
+        }
+
+        mh_context_t *client_context = mh_start();
+
+        // Allocate the arguments that get passed to the new thread
+        mh_tcp_threaded_args_t *args = mh_context_allocate(client_context, sizeof(mh_tcp_threaded_args_t), true).ptr;
+
+        // Copy the needed arguments
+        args->address = address;
+        args->socket = (int)client;
+        args->on_connect = on_connect;
+        args->context = client_context;
+
+        // Create the thread with those arguments
+        mh_thread_create(mh_tcp_threaded_connect_invoke, args);
+    }
+}
+#endif
