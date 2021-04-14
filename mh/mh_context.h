@@ -25,10 +25,7 @@ typedef struct mh_destructor {
 } mh_destructor_t;
 
 // The context structure, used for error reporting and memory management
-typedef struct mh_context {
-    // The destructor
-    mh_destructor_t destructor;
-} mh_context_t;
+typedef struct mh_context {} mh_context_t;
 
 // A context error handler
 typedef bool (*mh_error_handler_t)(mh_context_t* context, const char* message, void* from);
