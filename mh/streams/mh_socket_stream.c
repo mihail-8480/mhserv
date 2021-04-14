@@ -1,7 +1,11 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
 #include <unistd.h>
+#ifndef WIN32
 #include <netdb.h>
+#else
+#include <winsock2.h>
+#endif
 // The socket stream structure
 typedef struct mh_socket_stream {
     mh_stream_private_t base;
@@ -11,9 +15,13 @@ typedef struct mh_socket_stream {
 void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
     MH_THIS(mh_socket_stream_t*, stream);
 
-    // Read from the socket
-    ssize_t size = read(this->socket, buffer->address, count);
 
+    // Read from the socket
+#ifndef WIN32
+    ssize_t size = read(this->socket, buffer->address, count);
+#else
+    int size = recv((SOCKET)this->socket, buffer->address, (int)count, 0);
+#endif
     // If the allocation_size is negative, something went wrong
     if (size == -1) {
         mh_context_error(this->base.context,"Failed reading from the socket, it is probably closed.", mh_socket_stream_read);
@@ -28,8 +36,11 @@ void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
     MH_THIS(mh_socket_stream_t*, stream);
 
     // Read from the socket
+#ifndef WIN32
     ssize_t size = write(this->socket, buffer->address, count);
-
+#else
+    int size = send((SOCKET)this->socket, buffer->address, (int)count, 0);
+#endif
     // See above.
     if (size == -1) {
         mh_context_error(this->base.context,"Failed writing to the socket, it is probably closed.", mh_socket_stream_write);
@@ -43,9 +54,13 @@ void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
 void mh_socket_stream_free(void* stream) {
     MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
+#ifndef WIN32
     shutdown(this->socket, SHUT_WR);
-    // Close the socket
     close(this->socket);
+#else
+    closesocket(this->socket);
+#endif
+    // Close the socket
 }
 
 mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
