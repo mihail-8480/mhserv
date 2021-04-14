@@ -37,7 +37,6 @@ mh_context_t *mh_start(void) {
     // Create the context structure and set some default values
     MH_THIS(mh_context_private_t*,malloc(sizeof(mh_context_private_t)));
     *this = (mh_context_private_t){
-            .base.destructor = (mh_destructor_free_t)mh_end,
             .allocation_count = 0,
             .allocation_size = 32,
             .allocations = malloc(sizeof(mh_context_allocation_t) * 32),
