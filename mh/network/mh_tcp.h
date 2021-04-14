@@ -2,10 +2,12 @@
 #define MHSERV_MH_TCP_H
 #include "../mh_context.h"
 #include <stdint.h>
-#include <netinet/in.h>
 #include <stdbool.h>
 
-// A socket address (struct socketaddr_in) renamed, it's functionally the same
+#ifndef WIN32
+#include <netinet/in.h>
+#endif
+
 typedef struct sockaddr_in mh_socket_address_t;
 
 // A function pointer type for mh_tcp_start
