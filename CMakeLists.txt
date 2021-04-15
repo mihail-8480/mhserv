@@ -27,8 +27,8 @@ endif(WIN32)
 
 # mhserv
 add_executable(mhserv mhserv.c)
-target_link_libraries(mhserv PUBLIC mh bsd)
+target_link_libraries(mhserv PUBLIC mh)
 
 # libexample.so
 add_library(example SHARED example.c)
-target_link_libraries(example PUBLIC mh bsd)
+target_link_libraries(example PUBLIC mh)
