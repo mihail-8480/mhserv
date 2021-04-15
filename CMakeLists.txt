@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.17)
 project(mhserv C)
 
+if (HAIKU)
+    add_compile_definitions(HAIKU)
+endif(HAIKU)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(MH_DEBUG)
 endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
