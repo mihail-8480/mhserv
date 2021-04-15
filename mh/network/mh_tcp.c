@@ -1,7 +1,25 @@
 #include "mh_tcp.h"
 #include "../mh_thread.h"
 #include <stdlib.h>
+
+
+#ifndef WIN32
+#include <stdio.h>
+#include <signal.h>
+
+void mh_tcp_sigpipe(int sig) {
+    // Try to get the context of the thread where the SIGPIPE happened
+    mh_context_t* context = mh_context_get_from_thread();
+    if (context == NULL) {
+        return;
+    }
+    // Report the error on that context
+    mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
+}
+#else
+#pragma comment(lib,"ws2_32.lib")
 #include <ws2tcpip.h>
+#endif
 
 // The new thread's arguments
 typedef struct mh_tcp_threaded_args {
@@ -24,23 +42,6 @@ void* mh_tcp_threaded_connect_invoke(void* ptr) {
     mh_end(this->context);
     return NULL;
 }
-
-#ifndef WIN32
-#include <stdio.h>
-#include <signal.h>
-
-void mh_tcp_sigpipe(int sig) {
-    // Try to get the context of the thread where the SIGPIPE happened
-    mh_context_t* context = mh_context_get_from_thread();
-    if (context == NULL) {
-        return;
-    }
-    // Report the error on that context
-    mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
-}
-#else
-#pragma comment(lib,"ws2_32.lib")
-#endif
 
 void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
 
