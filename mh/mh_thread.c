@@ -24,6 +24,6 @@ void mh_thread_exit(void *ret) {
 #ifndef WIN32
     pthread_exit(ret);
 #else
-    ExitThread((DWORD)ret);
+    ExitThread(ret);
 #endif
 }

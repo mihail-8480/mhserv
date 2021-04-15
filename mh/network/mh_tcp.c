@@ -2,7 +2,6 @@
 #include "../mh_thread.h"
 #include <stdlib.h>
 
-
 #ifndef WIN32
 #include <stdio.h>
 #include <signal.h>
@@ -42,7 +41,7 @@ void* mh_tcp_threaded_connect_invoke(void* ptr) {
     return NULL;
 }
 
-void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clients, mh_on_connect_t on_connect) {
+void mh_tcp_start(mh_context_t* context, const mh_socket_address_t address, const int max_clients, mh_on_connect_t on_connect) {
 
 #ifndef WIN32
     // Handle broken pipes
@@ -56,13 +55,6 @@ void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clie
         abort();
     }
 #endif
-    // Set the address to * and the port to whatever the user specifies
-    mh_socket_address_t address = {
-            .sin_family = AF_INET,
-            .sin_addr.s_addr = INADDR_ANY,
-            .sin_port = htons(port)
-    };
-
 
     mh_socket_t sock;
 
@@ -118,4 +110,18 @@ void mh_tcp_start(mh_context_t* context, const uint16_t port, const int max_clie
         // Create the thread with those arguments
         mh_thread_create(mh_tcp_threaded_connect_invoke, args);
     }
+}
+
+unsigned short mh_tcp_address_to_string(char *host, mh_socket_address_t address, size_t size) {
+    inet_ntop(address.sin_family, &address.sin_addr, host, size);
+    return ntohs(address.sin_port);
+}
+
+mh_socket_address_t mh_tcp_string_to_address(const char *host, unsigned short port) {
+    mh_socket_address_t address = {
+            .sin_family = AF_INET,
+            .sin_port = htons(port)
+    };
+    inet_pton(address.sin_family, host, &address.sin_addr);
+    return address;
 }
