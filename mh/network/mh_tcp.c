@@ -1,6 +1,7 @@
 #include "mh_tcp.h"
 #include "../mh_thread.h"
 #include <stdlib.h>
+#include <sys/param.h>
 
 #ifndef WIN32
 #include <stdio.h>
@@ -71,11 +72,13 @@ void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, cons
     }
 
 #ifndef WIN32
+#ifndef __FreeBSD__
     // Set the socket options, if it fails, crash the program
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
         mh_context_error(context, "Failed setting socket options.", mh_tcp_start);
         abort();
     }
+#endif
 #endif
 
     // Bind the socket to the address specified earlier
