@@ -25,9 +25,9 @@ if(HAIKU)
     target_link_libraries(mh PRIVATE pthread bsd network)
 endif(HAIKU)
 
-if (LINUX)
+if(UNIX AND NOT (APPLE OR HAIKU))
     target_link_libraries(mh PRIVATE pthread dl)
-endif(LINUX)
+endif(UNIX AND NOT (APPLE OR HAIKU))
 
 # mhserv
 add_executable(mhserv mhserv.c)
