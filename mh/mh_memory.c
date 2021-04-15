@@ -6,7 +6,7 @@ typedef struct mh_memory_private {
 } mh_memory_private_t;
 
 
-mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
+mh_memory_t *mh_memory_new(mh_context_t *context, size_t size, bool clear) {
     // Allocate the memory container and set it's fields
     MH_THIS(mh_memory_private_t*, mh_context_allocate(context, sizeof(mh_memory_private_t), false).ptr);
     if (this == NULL) {
@@ -22,7 +22,7 @@ mh_memory_t *mh_memory_new(mh_context_t* context, size_t size, bool clear) {
     return &this->base;
 }
 
-void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
+void mh_memory_resize(mh_context_t *context, mh_memory_t *memory, size_t size) {
     // A re-alloc isn't needed if the allocation_size is smaller than the memory allocation_size
     MH_THIS(mh_memory_private_t *, memory);
 
@@ -51,30 +51,30 @@ void mh_memory_resize(mh_context_t* context, mh_memory_t *memory, size_t size) {
 
 mh_memory_t mh_memory_reference(void *address, size_t size) {
     // Create a new instance of the structure with offset 0
-    return (mh_memory_t){.address = address, .size = size, .offset = 0};
+    return (mh_memory_t) {.address = address, .size = size, .offset = 0};
 }
 
 mh_memory_t mh_memory_read_until(mh_memory_t *memory, char c) {
 
     // Copy the memory into a c-string from the current offset, to the index of the character
-    size_t index = mh_memory_index_of(*memory,c);
+    size_t index = mh_memory_index_of(*memory, c);
     if (index == -1) {
         return mh_memory_reference(NULL, 0);
     }
-    size_t size = index-memory->offset;
+    size_t size = index - memory->offset;
 
-    mh_memory_t ref = mh_memory_reference(memory->address+memory->offset, size);
+    mh_memory_t ref = mh_memory_reference(memory->address + memory->offset, size);
 
     // Move the offset forward
-    memory->offset += size+1;
+    memory->offset += size + 1;
     return ref;
 }
 
 size_t mh_memory_index_of(mh_memory_t memory, char c) {
-    char* str = (char*)memory.address;
+    char *str = (char *) memory.address;
 
     // Find the index of a character in the memory
-    for(size_t i = memory.offset; i < memory.size; i++) {
+    for (size_t i = memory.offset; i < memory.size; i++) {
         if (str[i] == c) {
             return i;
         }

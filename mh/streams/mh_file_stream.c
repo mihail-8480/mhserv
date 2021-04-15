@@ -5,11 +5,11 @@
 // The file stream structure
 typedef struct mh_file_stream {
     mh_stream_private_t base;
-    FILE* file;
+    FILE *file;
     bool should_close;
 } mh_file_stream_t;
 
-void mh_file_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
+void mh_file_stream_read(void *stream, mh_memory_t *buffer, size_t count) {
     MH_THIS(mh_file_stream_t*, stream);
 
     // Read from the file
@@ -17,7 +17,8 @@ void mh_file_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
 
     // If the allocation_size is negative, something went wrong
     if (size == -1) {
-        mh_context_error(this->base.context, "Failed reading from the file, it is probably closed.", mh_file_stream_read);
+        mh_context_error(this->base.context, "Failed reading from the file, it is probably closed.",
+                         mh_file_stream_read);
         return;
     }
 
@@ -25,7 +26,7 @@ void mh_file_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_file_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
+void mh_file_stream_write(void *stream, mh_memory_t *buffer, size_t count) {
     MH_THIS(mh_file_stream_t*, stream);
 
     // Write to the file
@@ -33,7 +34,8 @@ void mh_file_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
 
     // See above.
     if (size == -1) {
-        mh_context_error(this->base.context, "Failed writing to the file, it is probably closed.",mh_file_stream_write);
+        mh_context_error(this->base.context, "Failed writing to the file, it is probably closed.",
+                         mh_file_stream_write);
         return;
     }
 
@@ -41,7 +43,7 @@ void mh_file_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_file_stream_free(void* stream) {
+void mh_file_stream_free(void *stream) {
     MH_THIS(mh_file_stream_t*, stream);
     // Close the file (if needed)
     if (this->should_close) {
@@ -49,10 +51,11 @@ void mh_file_stream_free(void* stream) {
     }
 }
 
-void mh_file_stream_seek(void* stream, size_t position) {
+void mh_file_stream_seek(void *stream, size_t position) {
     MH_THIS(mh_file_stream_t*, stream);
     fseek(this->file, position, SEEK_SET);
 }
+
 size_t mh_file_stream_get_position(void *stream) {
     MH_THIS(mh_file_stream_t*, stream);
     return ftell(this->file);
@@ -74,7 +77,7 @@ size_t mh_file_stream_get_size(void *stream) {
     return size;
 }
 
-mh_stream_t *mh_file_stream_new(mh_context_t* context, FILE* file, bool should_close) {
+mh_stream_t *mh_file_stream_new(mh_context_t *context, FILE *file, bool should_close) {
     MH_THIS(mh_file_stream_t*, mh_context_allocate(context, sizeof(mh_file_stream_t), false).ptr);
     this->base.base.destructor.free = mh_file_stream_free;
     this->base.context = context;
@@ -96,5 +99,5 @@ mh_stream_t *mh_file_stream_new(mh_context_t* context, FILE* file, bool should_c
 
     this->file = file;
     this->should_close = should_close;
-    return (mh_stream_t*)this;
+    return (mh_stream_t *) this;
 }
