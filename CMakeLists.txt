@@ -17,16 +17,16 @@ set(CMAKE_C_FLAGS_RELEASE "-O3")
 # libmh.so
 add_library(mh SHARED mh/streams/mh_stream.c mh/streams/mh_memory_stream.c mh/mh_memory.c mh/network/mh_tcp.c mh/streams/mh_socket_stream.c mh/network/mh_http.c mh/mh_thread.c mh/streams/mh_file_stream.c mh/mh_context.c mh/collections/mh_shitmap.c mh/collections/mh_collection.c mh/mh_handle.c)
 if (WIN32)
-    target_link_libraries(mh PUBLIC wsock32 ws2_32 dl)
+    target_link_libraries(mh PRIVATE wsock32 ws2_32 dl)
 elseif (HAIKU)
-    target_link_libraries(mh PUBLIC pthread bsd)
+    target_link_libraries(mh PRIVATE pthread bsd)
 else(HAIKU)
-    target_link_libraries(mh PUBLIC pthread dl)
+    target_link_libraries(mh PRIVATE pthread dl)
 endif(WIN32)
 
 # mhserv
 add_executable(mhserv mhserv.c)
-target_link_libraries(mhserv PUBLIC mh)
+target_link_libraries(mhserv PRIVATE mh)
 
 # libexample.so
 add_library(example SHARED example.c)
