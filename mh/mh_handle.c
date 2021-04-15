@@ -8,11 +8,13 @@ typedef struct mh_handle_private {
 } mh_handle_private_t;
 
 void mh_handle_destroy(void* ptr) {
+    // Wrapper for dlclose()
     MH_THIS(mh_handle_private_t*, ptr);
     dlclose(this->handle);
 }
 
 mh_handle_t *mh_handle_new(mh_context_t *context, const char *path) {
+    // Wrapper for dlopen()
     MH_THIS(mh_handle_private_t*, (mh_handle_private_t*)mh_context_allocate(context, sizeof(mh_handle_private_t), false).ptr);
     void* handle = dlopen(path, RTLD_LAZY);
     if (!handle) {
@@ -29,6 +31,7 @@ mh_handle_t *mh_handle_new(mh_context_t *context, const char *path) {
 }
 
 void *mh_handle_find_symbol(mh_handle_t *handle, const char *name) {
+    // Wrapper for dlsym()
     MH_THIS(mh_handle_private_t*, handle);
     void *sym = dlsym(this->handle, name);
     if (!sym) {
