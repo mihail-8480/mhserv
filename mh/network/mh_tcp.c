@@ -17,7 +17,6 @@ void mh_tcp_sigpipe(int sig) {
     mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
 }
 #else
-#pragma comment(lib,"ws2_32.lib")
 #include <ws2tcpip.h>
 #endif
 
