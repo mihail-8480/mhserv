@@ -5,6 +5,7 @@
 #ifndef WIN32
 #include <stdio.h>
 #include <signal.h>
+#include <sys/socket.h>
 
 void mh_tcp_sigpipe(int sig) {
     // Try to get the context of the thread where the SIGPIPE happened
