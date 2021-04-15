@@ -16,7 +16,7 @@ add_library(mh SHARED mh/streams/mh_stream.c mh/streams/mh_memory_stream.c mh/mh
 if (WIN32)
     target_link_libraries(mh PUBLIC wsock32 ws2_32 dl)
 elseif (HAIKU)
-    target_link_libraries(mh PUBLIC pthread)
+    target_link_libraries(mh PUBLIC pthread bsd)
 else(HAIKU)
     target_link_libraries(mh PUBLIC pthread dl)
 endif(WIN32)
