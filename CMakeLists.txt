@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.0)
 project(mhserv C)
 
 if(UNIX AND NOT (APPLE OR HAIKU))
