@@ -51,7 +51,6 @@ void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, cons
 #ifndef WIN32
     // Handle broken pipes
     signal(SIGPIPE, mh_tcp_sigpipe);
-    int opt = 1;
 #else
     // Initiates Winsock
     WSADATA wsa;
@@ -71,14 +70,13 @@ void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, cons
         abort();
     }
 
-#ifndef WIN32
-#ifndef __FreeBSD__
+#if !defined(WIN32) && !defined(__FreeBSD__) && !defined(HAIKU)
     // Set the socket options, if it fails, crash the program
+    int opt = 1;
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
         mh_context_error(context, "Failed setting socket options.", mh_tcp_start);
         abort();
     }
-#endif
 #endif
 
     // Bind the socket to the address specified earlier
