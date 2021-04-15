@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 project(mhserv C)
+if(UNIX AND NOT (APPLE OR HAIKU))
+    add_compile_definitions(UNIX_LIKE)
+    set(UNIX_LIKE 1)
+endif(UNIX AND NOT (APPLE OR HAIKU))
 
 if (HAIKU)
     add_compile_definitions(HAIKU)
@@ -25,9 +29,9 @@ if(HAIKU)
     target_link_libraries(mh PRIVATE pthread bsd network)
 endif(HAIKU)
 
-if(UNIX AND NOT (APPLE OR HAIKU))
+if(UNIX_LIKE)
     target_link_libraries(mh PRIVATE pthread dl)
-endif(UNIX AND NOT (APPLE OR HAIKU))
+endif(UNIX_LIKE)
 
 # mhserv
 add_executable(mhserv mhserv.c)
