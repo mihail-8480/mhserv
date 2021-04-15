@@ -5,9 +5,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef HAIKU
+.
+#endif
+
 #ifndef WIN32
-#include <netinet/in.h>
 #ifndef HAIKU
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
 #include <unistd.h>
