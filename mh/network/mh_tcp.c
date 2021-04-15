@@ -118,9 +118,11 @@ void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, cons
 }
 
 unsigned short mh_tcp_address_to_string(char *host, mh_socket_address_t address, size_t size) {
-    inet_ntop(address.sin_family, &address.sin_addr, host, size);
 #ifndef HAIKU
+    inet_ntop(address.sin_family, &address.sin_addr, host, size);
     return ntohs(address.sin_port);
+#else
+    return 0;
 #endif
 }
 
