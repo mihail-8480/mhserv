@@ -18,7 +18,7 @@ else (WIN32)
 endif(WIN32)
 
 # mhserv
-add_executable(mhserv main.c)
+add_executable(mhserv mhserv.c)
 target_link_libraries(mhserv PUBLIC mh)
 
 # libexample.so
