@@ -6,4 +6,5 @@ void mh_http_handle(mh_context_t *context, mh_stream_t *socket_stream, mh_http_r
     MH_ECHO("Connection: close" MH_ENDL);
     MH_ECHO(MH_ENDL);
     MH_ECHO("<h1>IT WORKS!!!</h1>");
+    MH_ECHO("<p>Running on <b>" MH_PLATFORM "</b>.</p>");
 }
