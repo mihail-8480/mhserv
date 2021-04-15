@@ -53,7 +53,7 @@ void mh_file_stream_free(void *stream) {
 
 void mh_file_stream_seek(void *stream, size_t position) {
     MH_THIS(mh_file_stream_t*, stream);
-    fseek(this->file, position, SEEK_SET);
+    fseek(this->file, (long)position, SEEK_SET);
 }
 
 size_t mh_file_stream_get_position(void *stream) {
@@ -64,13 +64,13 @@ size_t mh_file_stream_get_position(void *stream) {
 size_t mh_file_stream_get_size(void *stream) {
     MH_THIS(mh_file_stream_t*, stream);
     // Save the old position
-    size_t old_position = ftell(this->file);
+    long old_position = ftell(this->file);
 
     // Seek to the end
     fseek(this->file, 0, SEEK_END);
 
     // Get the position (of the end)
-    size_t size = ftell(this->file);
+    long size = ftell(this->file);
 
     // Seek back to the old position
     fseek(this->file, old_position, SEEK_SET);
