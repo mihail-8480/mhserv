@@ -6,8 +6,8 @@
 #include <stdbool.h>
 
 #ifndef WIN32
-#ifndef HAIKU
 #include <netinet/in.h>
+#ifndef HAIKU
 #include <arpa/inet.h>
 #endif
 #include <unistd.h>
