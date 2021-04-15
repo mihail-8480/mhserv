@@ -1,15 +1,10 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
-#include <unistd.h>
-#ifndef WIN32
-#include <netdb.h>
-#else
-#include <winsock2.h>
-#endif
+
 // The socket stream structure
 typedef struct mh_socket_stream {
     mh_stream_private_t base;
-    int socket;
+    mh_socket_t socket;
 } mh_socket_stream_t;
 
 void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
@@ -63,7 +58,7 @@ void mh_socket_stream_free(void* stream) {
     // Close the socket
 }
 
-mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
+mh_stream_t *mh_socket_stream_new(mh_context_t* context, mh_socket_t socket) {
     MH_THIS(mh_socket_stream_t*, mh_context_allocate(context, sizeof(mh_socket_stream_t), false).ptr);
 
     this->base.base.destructor.free = mh_socket_stream_free;
