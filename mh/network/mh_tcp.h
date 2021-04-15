@@ -7,9 +7,7 @@
 
 #ifndef WIN32
 #include <netinet/in.h>
-#ifndef HAIKU
 #include <arpa/inet.h>
-#endif
 #include <unistd.h>
 #else
 
