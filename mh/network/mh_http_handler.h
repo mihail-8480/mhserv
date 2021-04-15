@@ -27,4 +27,18 @@
 // The HTTP handler
 void mh_http_handle(mh_context_t *context, mh_stream_t *socket_stream, mh_http_request_t *request);
 
+#if defined(WIN32)
+#define MH_PLATFORM "Windows"
+#elif defined(LINUX)
+#define MH_PLATFORM "Linux"
+#elif defined (HAIKU)
+#define MH_PLATFORM "Haiku"
+#elif defined (UNIX_LIKE)
+#define MH_PLATFORM "Generic Unix"
+#elif defined (UNIX)
+#define MH_PLATFORM "Other Unix"
+#else
+#define MH_PLATFORM "Unknown"
+#endif
+
 #endif //MHSERV_MH_HTTP_HANDLER_H
