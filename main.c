@@ -1,6 +1,7 @@
 #include "mh/network/mh_http.h"
 #include "mh/mh_thread.h"
 #include "mh/mh_handle.h"
+#include <limits.h>
 
 bool program_error(mh_context_t* context, const char* message, void* from) {
     fprintf(stderr,"[program_error] An error has occurred at function %#08zx: %s\n", (size_t)from, message);
@@ -18,10 +19,15 @@ int main(int argc, char** argv) {
     mh_context_set_error_handler(context, program_error);
     unsigned long port = 8080;
     const char* library_function = "mh_http_handle";
+
     // Check if we should change the default port
     const char* port_env = getenv("MH_PORT");
     if (port_env != NULL) {
         port = strtoul(port_env, NULL, 10);
+        if (port >= USHRT_MAX) {
+            mh_context_error(context, "The port number is too large.", main);
+            return 1;
+        }
     }
     // Check if we should change the default library function
     const char* lib_function_env = getenv("MH_LIB_FUNCTION");
