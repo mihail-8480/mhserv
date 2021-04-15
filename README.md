@@ -4,7 +4,7 @@ A webserver that i made.
 
 ## Building
 
-### Linux
+### Linux and FreeBSD
 
 To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
