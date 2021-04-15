@@ -1,18 +1,13 @@
 #include "mh_stream.h"
 #include "mh_stream_private.h"
-#include <unistd.h>
-#ifndef WIN32
-#include <netdb.h>
-#else
-#include <winsock2.h>
-#endif
+
 // The socket stream structure
 typedef struct mh_socket_stream {
     mh_stream_private_t base;
-    int socket;
+    mh_socket_t socket;
 } mh_socket_stream_t;
 
-void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
+void mh_socket_stream_read(void *stream, mh_memory_t *buffer, size_t count) {
     MH_THIS(mh_socket_stream_t*, stream);
 
 
@@ -20,11 +15,12 @@ void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
 #ifndef WIN32
     ssize_t size = read(this->socket, buffer->address, count);
 #else
-    int size = recv((SOCKET)this->socket, buffer->address, (int)count, 0);
+    int size = recv((SOCKET) this->socket, buffer->address, (int) count, 0);
 #endif
     // If the allocation_size is negative, something went wrong
     if (size == -1) {
-        mh_context_error(this->base.context,"Failed reading from the socket, it is probably closed.", mh_socket_stream_read);
+        mh_context_error(this->base.context, "Failed reading from the socket, it is probably closed.",
+                         mh_socket_stream_read);
         return;
     }
 
@@ -32,18 +28,19 @@ void mh_socket_stream_read(void* stream, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
+void mh_socket_stream_write(void *stream, mh_memory_t *buffer, size_t count) {
     MH_THIS(mh_socket_stream_t*, stream);
 
     // Read from the socket
 #ifndef WIN32
     ssize_t size = write(this->socket, buffer->address, count);
 #else
-    int size = send((SOCKET)this->socket, buffer->address, (int)count, 0);
+    int size = send((SOCKET) this->socket, buffer->address, (int) count, 0);
 #endif
     // See above.
     if (size == -1) {
-        mh_context_error(this->base.context,"Failed writing to the socket, it is probably closed.", mh_socket_stream_write);
+        mh_context_error(this->base.context, "Failed writing to the socket, it is probably closed.",
+                         mh_socket_stream_write);
         return;
     }
 
@@ -51,7 +48,7 @@ void mh_socket_stream_write(void* stream, mh_memory_t* buffer, size_t count) {
     buffer->offset = size;
 }
 
-void mh_socket_stream_free(void* stream) {
+void mh_socket_stream_free(void *stream) {
     MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
 #ifndef WIN32
@@ -63,7 +60,7 @@ void mh_socket_stream_free(void* stream) {
     // Close the socket
 }
 
-mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
+mh_stream_t *mh_socket_stream_new(mh_context_t *context, mh_socket_t socket) {
     MH_THIS(mh_socket_stream_t*, mh_context_allocate(context, sizeof(mh_socket_stream_t), false).ptr);
 
     this->base.base.destructor.free = mh_socket_stream_free;
@@ -83,7 +80,7 @@ mh_stream_t *mh_socket_stream_new(mh_context_t* context, int socket) {
     this->base.seek = NULL;
     this->base.get_position = NULL;
     this->base.get_size = NULL;
-    
+
     this->socket = socket;
-    return (mh_stream_t*)this;
+    return (mh_stream_t *) this;
 }
