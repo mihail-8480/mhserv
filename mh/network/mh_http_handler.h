@@ -1,5 +1,6 @@
 #ifndef MHSERV_MH_HTTP_HANDLER_H
 #define MHSERV_MH_HTTP_HANDLER_H
+
 #include "mh_http.h"
 
 // End of line (CRLF)
@@ -24,6 +25,6 @@
 #define MH_HEADER_STR(str) mh_map_get(MH_REQUEST->headers, MH_REF_STRING(str))
 
 // The HTTP handler
-void mh_http_handle(mh_context_t* context, mh_stream_t* socket_stream, mh_http_request_t* request);
+void mh_http_handle(mh_context_t *context, mh_stream_t *socket_stream, mh_http_request_t *request);
 
 #endif //MHSERV_MH_HTTP_HANDLER_H

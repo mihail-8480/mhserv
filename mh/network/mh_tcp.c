@@ -16,7 +16,9 @@ void mh_tcp_sigpipe(int sig) {
     mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
 }
 #else
+
 #include <ws2tcpip.h>
+
 #endif
 
 // The new thread's arguments
@@ -24,11 +26,11 @@ typedef struct mh_tcp_threaded_args {
     mh_socket_t socket;
     mh_socket_address_t address;
     mh_on_connect_t on_connect;
-    mh_context_t* context;
+    mh_context_t *context;
 
 } mh_tcp_threaded_args_t;
 
-void* mh_tcp_threaded_connect_invoke(void* ptr) {
+void *mh_tcp_threaded_connect_invoke(void *ptr) {
     // Get the arguments
     MH_THIS(mh_tcp_threaded_args_t*, ptr);
     mh_context_bind_to_thread(this->context);
@@ -41,7 +43,8 @@ void* mh_tcp_threaded_connect_invoke(void* ptr) {
     return NULL;
 }
 
-void mh_tcp_start(mh_context_t* context, const mh_socket_address_t address, const int max_clients, mh_on_connect_t on_connect) {
+void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, const int max_clients,
+                  mh_on_connect_t on_connect) {
 
 #ifndef WIN32
     // Handle broken pipes
@@ -50,7 +53,7 @@ void mh_tcp_start(mh_context_t* context, const mh_socket_address_t address, cons
 #else
     // Initiates Winsock
     WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         mh_context_error(context, "WSAStartup failed.", mh_tcp_start);
         abort();
     }
@@ -75,7 +78,7 @@ void mh_tcp_start(mh_context_t* context, const mh_socket_address_t address, cons
 #endif
 
     // Bind the socket to the address specified earlier
-    if(bind(sock, (struct sockaddr *)&address, addr_len) == -1) {
+    if (bind(sock, (struct sockaddr *) &address, addr_len) == -1) {
         mh_context_error(context, "Could not use the specified address.", mh_tcp_start);
         abort();
     }
@@ -87,7 +90,7 @@ void mh_tcp_start(mh_context_t* context, const mh_socket_address_t address, cons
     }
 
     // Forever... (until the program crashes)
-    while(true) {
+    while (true) {
         // Accept a client
         mh_socket_t client = accept(sock, (struct sockaddr *) &address, &addr_len);
         // If the client is invalid, crash the program
