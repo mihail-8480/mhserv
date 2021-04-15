@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     mh_context_t* context = mh_start();
     mh_context_set_error_handler(context, program_error);
     unsigned long port = 8080;
+    const char* ip = "127.0.0.1";
     const char* library_function = "mh_http_handle";
 
     // Check if we should change the default port
@@ -35,6 +36,11 @@ int main(int argc, char** argv) {
         library_function = lib_function_env;
     }
 
+    // Check if we should change the default IP
+    const char* ip_env = getenv("MH_IP");
+    if (ip_env != NULL) {
+        ip = ip_env;
+    }
     // Check if the command line arguments are correct
     if (argc != 2) {
         mh_context_error(context, "Invalid syntax", main);
@@ -45,5 +51,9 @@ int main(int argc, char** argv) {
     mh_handle_t* library = mh_handle_new(context, argv[1]);
     mh_http_set_error_handler(http_error);
     mh_http_set_request_handler(mh_handle_find_symbol(library, library_function));
-    mh_tcp_start(context, port, 32, mh_http);
+    mh_socket_address_t address = mh_tcp_string_to_address(ip, port);
+    char adr_str[20];
+    int adr_prt = mh_tcp_address_to_string(adr_str, address, 20);
+    printf("Listening on %s:%d...\n", adr_str, adr_prt);
+    mh_tcp_start(context, address, 32, mh_http);
 }

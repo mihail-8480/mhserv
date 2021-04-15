@@ -2,6 +2,7 @@
 A webserver that i made.
 
 ## Building
+### Linux
 To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
 ```sh
@@ -9,6 +10,15 @@ git clone https://github.com/mihail-8480/mhserv
 cd mhserv
 cmake . && make
 ```
+
+### Windows
+You need to install `msys64`, and inside of it to install the following packages:
+* `mingw-w64-x86-64-gcc`
+* `mingw-w64-x86-64-gdb`
+* `mingw-w64-x86-64-make`
+* `mingw-w64-x86_64-dlfcn`
+
+Then you can use CLion to compile it.
 
 ## Running
 To make a simple test if it's built correctly you can run `mhserv` with `libexample.so`:
@@ -24,7 +34,7 @@ If you have your own handler library you can load it in the same way.
 |------| ----------- | ------- |
 | MH_LIB_FUNCTION | The function that handles the HTTP requests. | `mh_http_handle` |
 | MH_PORT | The port that the HTTP server is hosted at. | `8080` |
-
+| MH_IP | The IP that the HTTP server is hosted at. | `127.0.0.1` |
 ## Making your own handler
 Create a new dynamic library that uses `libmh.so` and declares a function that looks like this:
 ```c
