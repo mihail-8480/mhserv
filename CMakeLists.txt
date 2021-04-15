@@ -3,7 +3,7 @@ project(mhserv C)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(MH_DEBUG)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
@@ -15,7 +15,7 @@ if (WIN32)
     target_link_libraries(mh PUBLIC wsock32 ws2_32 dl)
 else (WIN32)
     target_link_libraries(mh PUBLIC pthread dl)
-endif(WIN32)
+endif (WIN32)
 
 # mhserv
 add_executable(mhserv mhserv.c)
