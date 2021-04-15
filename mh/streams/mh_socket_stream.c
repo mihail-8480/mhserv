@@ -55,15 +55,17 @@ void mh_socket_stream_write(void *stream, mh_memory_t *buffer, size_t count) {
 void mh_socket_stream_free(void *stream) {
     MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
-#if defined(UNIX)
+#if defined (LINUX) || defined (HAIKU)
     shutdown(this->socket, SHUT_WR);
+#endif
+    // Close the socket
+#if defined(UNIX)
     close(this->socket);
 #elif defined(WIN32)
     closesocket(this->socket);
 #else
 #error Unsupported platform.
 #endif
-    // Close the socket
 }
 
 mh_stream_t *mh_socket_stream_new(mh_context_t *context, mh_socket_t socket) {
