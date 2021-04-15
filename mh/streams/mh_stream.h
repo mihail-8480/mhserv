@@ -2,6 +2,7 @@
 #define MHSERV_MH_STREAM_H
 #include "../mh_memory.h"
 #include "../mh_context.h"
+#include "../network/mh_tcp.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +16,7 @@ typedef struct mh_stream {
 mh_stream_t* mh_memory_stream_new(mh_context_t* context, size_t size, bool fixed);
 
 // Create a new socket stream (will probably work with normal file descriptors too)
-mh_stream_t* mh_socket_stream_new(mh_context_t* context, int sock);
+mh_stream_t* mh_socket_stream_new(mh_context_t* context, mh_socket_t sock);
 
 // Create a new file stream
 mh_stream_t *mh_file_stream_new(mh_context_t* context, FILE* file, bool should_close);

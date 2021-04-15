@@ -37,6 +37,10 @@ mh_memory_t mh_map_get(mh_map_t* map, mh_memory_t key) {
     MH_THIS(mh_shitmap_t*, map);
     mh_iterator_start(this->internal_iterator);
     do {
+        if (this->memory->offset == 0)
+        {
+            break;
+        }
         mh_key_value_pair_t* kv = ((mh_key_value_pair_t*)mh_iterator_current(this->internal_iterator).address);
         if (kv->key.size != key.size) {
             continue;

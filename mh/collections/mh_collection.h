@@ -5,15 +5,18 @@
 
 // Something to iterate over
 typedef struct mh_iterator {
+    // For mh_iterator_start()
     void (*start)(struct mh_iterator* iterator);
+    // For mh_iterator_next()
     bool (*next)(struct mh_iterator* iterator);
+    // For mh_iterator_current()
     mh_memory_t (*current)(struct mh_iterator* iterator);
-
 } mh_iterator_t;
 
 // A collection
 typedef struct mh_collection {
     mh_destructor_t destructor;
+    // For mh_collection_get_iterator()
     mh_iterator_t* (*get_iterator)(struct mh_collection* collection);
 } mh_collection_t;
 

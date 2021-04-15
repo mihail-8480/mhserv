@@ -7,8 +7,11 @@
 
 // A structure that represents a memory address with a allocation_size and offset
 typedef struct mh_memory {
+    // The address of the memory
     void* address;
+    // An integer that represents some kind of offset to that address
     size_t offset;
+    // The allocated size of the memory
     size_t size;
 } mh_memory_t;
 

@@ -102,10 +102,9 @@ void mh_http_request_read_content(mh_stream_t* socket_stream, mh_http_request_t*
                                            private->request_memory->offset - private->request_header_end);
 }
 
-void mh_http(mh_context_t* context, int socket, mh_socket_address_t address) {
+void mh_http(mh_context_t* context, mh_socket_t socket, mh_socket_address_t address) {
     // If there is no request handler, ERROR!
     if (http_request_handler == NULL) {
-        close(socket);
         mh_context_error(context, "A request handler is not set.", mh_http);
         return;
     }
