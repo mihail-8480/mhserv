@@ -12,10 +12,12 @@ void mh_socket_stream_read(void *stream, mh_memory_t *buffer, size_t count) {
 
 
     // Read from the socket
-#ifndef WIN32
+#if defined(UNIX)
     ssize_t size = read(this->socket, buffer->address, count);
-#else
+#elif defined(WIN32)
     int size = recv((SOCKET) this->socket, buffer->address, (int) count, 0);
+#else
+#error Unsupported platform.
 #endif
     // If the allocation_size is negative, something went wrong
     if (size == -1) {
@@ -32,10 +34,12 @@ void mh_socket_stream_write(void *stream, mh_memory_t *buffer, size_t count) {
     MH_THIS(mh_socket_stream_t*, stream);
 
     // Read from the socket
-#ifndef WIN32
+#if defined(UNIX)
     ssize_t size = write(this->socket, buffer->address, count);
-#else
+#elif defined(WIN32)
     int size = send((SOCKET) this->socket, buffer->address, (int) count, 0);
+#else
+#error Unsupported platform.
 #endif
     // See above.
     if (size == -1) {
@@ -51,11 +55,13 @@ void mh_socket_stream_write(void *stream, mh_memory_t *buffer, size_t count) {
 void mh_socket_stream_free(void *stream) {
     MH_THIS(mh_socket_stream_t*, stream);
     // Shutdown the socket
-#ifndef WIN32
+#if defined(UNIX)
     shutdown(this->socket, SHUT_WR);
     close(this->socket);
-#else
+#elif defined(WIN32)
     closesocket(this->socket);
+#else
+#error Unsupported platform.
 #endif
     // Close the socket
 }

@@ -5,24 +5,26 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef WIN32
+#if defined(UNIX)
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#else
-
+#elif defined(WIN32)
 #include <winsock2.h>
-
+#else
+#error Unsupported platform.
 #endif
 
 // The address of a socket
 typedef struct sockaddr_in mh_socket_address_t;
 
 // The socket type
-#ifndef WIN32
+#if defined(UNIX)
 typedef int mh_socket_t;
-#else
+#elif defined(WIN32)
 typedef SOCKET mh_socket_t;
+#else
+#error Unsupported platform.
 #endif
 
 // A function pointer type for mh_tcp_start

@@ -1,9 +1,19 @@
 cmake_minimum_required(VERSION 3.17)
 project(mhserv C)
+
 if(UNIX AND NOT (APPLE OR HAIKU))
     add_compile_definitions(UNIX_LIKE)
     set(UNIX_LIKE 1)
 endif(UNIX AND NOT (APPLE OR HAIKU))
+
+if (UNIX)
+    add_compile_definitions(UNIX)
+endif(UNIX)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_compile_definitions(LINUX)
+    set(LINUX 1)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
 if (HAIKU)
     add_compile_definitions(HAIKU)

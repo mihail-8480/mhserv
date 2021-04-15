@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sys/param.h>
 
-#ifndef WIN32
+#if defined(UNIX)
 #include <stdio.h>
 #include <signal.h>
 #include <sys/socket.h>
@@ -17,10 +17,10 @@ void mh_tcp_sigpipe(int sig) {
     // Report the error on that context
     mh_context_error(context,"Broken pipe.", mh_tcp_sigpipe);
 }
-#else
-
+#elif defined(WIN32)
 #include <ws2tcpip.h>
-
+#else
+#error Unsupported platform.
 #endif
 
 // The new thread's arguments
@@ -48,16 +48,18 @@ void *mh_tcp_threaded_connect_invoke(void *ptr) {
 void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, const int max_clients,
                   mh_on_connect_t on_connect) {
 
-#ifndef WIN32
+#if defined(UNIX)
     // Handle broken pipes
     signal(SIGPIPE, mh_tcp_sigpipe);
-#else
+#elif defined(WIN32)
     // Initiates Winsock
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         mh_context_error(context, "WSAStartup failed.", mh_tcp_start);
         abort();
     }
+#else
+#error Unsupported platform.
 #endif
 
     mh_socket_t sock;
@@ -70,7 +72,7 @@ void mh_tcp_start(mh_context_t *context, const mh_socket_address_t address, cons
         abort();
     }
 
-#if !defined(WIN32) && !defined(__FreeBSD__) && !defined(HAIKU)
+#if defined(LINUX)
     // Set the socket options, if it fails, crash the program
     int opt = 1;
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {

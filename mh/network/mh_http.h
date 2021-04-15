@@ -6,12 +6,6 @@
 #include "../streams/mh_stream.h"
 #include "../collections/mh_map.h"
 
-#ifdef WIN32
-
-#include <winsock2.h>
-
-#endif
-
 // A HTTP request
 typedef struct mh_http_request {
     // The HTTP method
