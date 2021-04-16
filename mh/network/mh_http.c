@@ -139,12 +139,6 @@ void mh_http(mh_context_t *context, mh_socket_t socket, mh_socket_address_t addr
         }
     } while (request_memory->offset == iterations * mh_http_copy_buffer_size);
 
-    // If you didn't encounter the header's end for some reason, complain
-    if (request_header_end == 0) {
-        mh_context_error(context, "Could not find end of header in request_stream.", mh_http);
-        return;
-    }
-
     // Split the request_stream memory into header and post
     mh_memory_t header = mh_memory_reference(request_memory->address,
                                              request_memory->offset - (request_memory->offset - request_header_end));
