@@ -28,6 +28,7 @@ Then you can use CLion or the Unix-like instructions to compile it.
 
 ## Running
 On Windows use `libexample.dll`, on Mac use `libexample.dylib` instead.
+
 To make a simple test if it's built correctly you can run `mhserv` with `libexample.so`:
 
 ```sh
