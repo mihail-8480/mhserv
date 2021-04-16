@@ -4,7 +4,8 @@ A webserver that i made.
 
 ## Building
 
-### Linux, FreeBSD and Haiku
+### Unix-like
+Currently tested on: GNU/Linux, Android (Termux Arch Linux), FreeBSD, Haiku and Mac.
 
 To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
@@ -16,21 +17,21 @@ cmake . && cmake --build .
 
 ### Windows
 
-You need to install `msys64`, and inside of it to install the following packages:
+You need to install `msys2`, and inside of it to install the following packages:
 
 * `mingw-w64-x86-64-gcc`
 * `mingw-w64-x86-64-gdb`
 * `mingw-w64-x86-64-make`
 * `mingw-w64-x86_64-dlfcn`
 
-Then you can use CLion to compile it.
+Then you can use CLion or the Unix-like instructions to compile it.
 
 ## Running
-
+On Windows use `libexample.dll`, on Mac use `libexample.dylib` instead.
 To make a simple test if it's built correctly you can run `mhserv` with `libexample.so`:
 
 ```sh
-./mhserv libexample.so
+./mhserv ./libexample.so
 ```
 
 Then go to the [default URL](http://localhost:8080/), if a webpage is displayed - it works!
