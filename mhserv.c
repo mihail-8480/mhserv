@@ -14,33 +14,32 @@ bool http_error(mh_context_t *context, const char *message, void *from) {
     mh_thread_exit(0);
 }
 
+inline static const char* mh_env_default(const char* env, const char* def) {
+    const char *res = getenv(env);
+    if (res != NULL) {
+        return res;
+    }
+    return def;
+}
+
 int main(int argc, char **argv) {
     mh_context_t *context = mh_start();
     mh_context_set_error_handler(context, program_error);
-    unsigned long port = 8080;
-    const char *ip = "127.0.0.1";
-    const char *library_function = "mh_http_handle";
 
     // Check if we should change the default port
-    const char *port_env = getenv("MH_PORT");
-    if (port_env != NULL) {
-        port = strtoul(port_env, NULL, 10);
-        if (port >= USHRT_MAX) {
-            mh_context_error(context, "The port number is too large.", main);
-            return 1;
-        }
-    }
-    // Check if we should change the default library function
-    const char *lib_function_env = getenv("MH_LIB_FUNCTION");
-    if (lib_function_env != NULL) {
-        library_function = lib_function_env;
+    const char *e_port = mh_env_default("MH_PORT", "8080");
+    unsigned long port = strtoul(e_port, NULL, 10);
+    if (port >= USHRT_MAX) {
+        mh_context_error(context, "The port number is too large.", main);
+        return 1;
     }
 
+    // Check if we should change the default library function
+    const char *library_function = mh_env_default("MH_LIB_FUNCTION", "mh_http_handle");
+
     // Check if we should change the default IP
-    const char *ip_env = getenv("MH_IP");
-    if (ip_env != NULL) {
-        ip = ip_env;
-    }
+    const char *ip = mh_env_default("MH_IP", "127.0.0.1");
+
     // Check if the command line arguments are correct
     if (argc != 2) {
         mh_context_error(context, "Invalid syntax", main);
@@ -52,7 +51,7 @@ int main(int argc, char **argv) {
     mh_http_set_error_handler(http_error);
     mh_http_set_request_handler(mh_handle_find_symbol(library, library_function));
 
-    // Convert the address to a string
+    // Convert the address to a string  (for verification purposes)
     mh_socket_address_t address = mh_tcp_string_to_address(ip, port);
     char adr_str[40];
 
