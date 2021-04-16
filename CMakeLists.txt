@@ -36,7 +36,7 @@ if (WIN32)
 endif (WIN32)
 
 if(HAIKU)
-    target_link_libraries(mh PRIVATE pthread bsd network)
+    target_link_libraries(mh PRIVATE bsd network)
 endif(HAIKU)
 
 if(UNIX_LIKE)
