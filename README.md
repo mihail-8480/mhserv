@@ -1,6 +1,5 @@
 # mhserv
-
-A webserver that i made.
+A relatively simple multi-platform C HTTP server. 
 
 ## Building
 
