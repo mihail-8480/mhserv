@@ -9,7 +9,7 @@ Currently tested on: GNU/Linux, Android (Termux Arch Linux), FreeBSD, Haiku and 
 To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
 ```sh
-git clone https://github.com/mihail-8480/mhserv
+git clone https://github.com/mihail-8480/mhserv --recurse-submodules
 cd mhserv
 cmake . && cmake --build .
 ```
