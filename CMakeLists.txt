@@ -49,4 +49,8 @@ target_link_libraries(mhserv PRIVATE mh)
 
 # libexample.so
 add_library(example SHARED example.c)
-target_link_libraries(example PUBLIC mh)
+target_link_libraries(example PRIVATE mh)
+
+# tests
+add_executable(tests tests/tests.c)
+target_link_libraries(tests PRIVATE mh)
