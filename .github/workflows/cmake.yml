@@ -22,7 +22,7 @@ jobs:
       - name: Run Tests
         working-directory: ${{github.workspace}}/build
         shell: bash
-        run: ./tests
+        run: bin/tests
       - name: Upload Libraries
         uses: actions/upload-artifact@v2.2.3
         with:
