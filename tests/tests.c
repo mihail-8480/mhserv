@@ -69,20 +69,27 @@ void* do_nothing() {
 }
 
 bool create_thread_test(mh_context_t* context) {
+    return false;
     for(int i = 0; i < 100; i++) {
         mh_thread_create(do_nothing, NULL);
     }
     return true;
 }
 
-static inline bool mh_test_run(mh_test_t test) {
+static inline void mh_test_run(mh_test_t test, const char* name) {
+    printf("Running %s", name);
     mh_context_t *context = mh_start();
     bool res = test(context);
     mh_end(context);
-    return res;
+    if (res) {
+        printf(" [PASSED]\n");
+    } else {
+        printf(" [FAILED]\n");
+        exit(1);
+    }
 }
 
-#define MH_TEST_RUN(test) printf("[%s] %s\n", mh_test_run(test) ? "passed" : "failed", #test)
+#define MH_TEST_RUN(test) mh_test_run(test, #test)
 
 int main(void) {
     MH_TEST_RUN(context_allocation_test);
