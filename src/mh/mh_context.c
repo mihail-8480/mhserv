@@ -106,7 +106,13 @@ void *mh_context_reallocate(mh_context_t *context, mh_context_allocation_referen
         return NULL;
     }
 
-    this->allocations[ref.index] = realloc(ref.ptr, size);
+    void* ptr = realloc(ref.ptr, size);
+
+    if (ptr == NULL) {
+        mh_context_error(context, "Failed reallocating memory.", mh_context_reallocate);
+    }
+
+    this->allocations[ref.index] = ptr;
     INFO("(mh_context_reallocate)-- resized %zu to %zu - resulted in %zu\n", (size_t) ref.ptr, size,
          (size_t) this->allocations[ref.index]);
     return this->allocations[ref.index];
