@@ -1,6 +1,8 @@
 #include "../mh/collections/mh_map.h"
 #include "../mh/streams/mh_stream.h"
 #include "../mh/mh_thread.h"
+#include "tests.h"
+
 
 void* do_nothing() {
 
@@ -67,6 +69,15 @@ bool stream_test(mh_context_t* context) {
 bool create_thread_test(mh_context_t* context) {
     for(int i = 0; i < 100; i++) {
         mh_thread_create(do_nothing, NULL);
+    }
+    return true;
+}
+
+bool context_create_test(mh_context_t *context) {
+    for (int i = 0; i < 10000; i++) {
+        mh_context_t *c = mh_start();
+        context_allocation_test(c);
+        mh_end(c);
     }
     return true;
 }

@@ -62,7 +62,7 @@ void mh_end(mh_context_t *context) {
 
     // Free every allocation and the allocation array
     for (size_t i = 0; i < this->allocation_count; i++) {
-        INFO("(mh_end)-- freeing [%zu] (%zu)\n", i, (size_t) this->allocations[i]);
+        INFO("(mh_end [%zu])-- freeing [%zu] (%zu)\n",(size_t) context , i, (size_t) this->allocations[i]);
         free(this->allocations[i]);
     }
     free(this->allocations);
