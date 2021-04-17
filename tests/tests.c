@@ -69,7 +69,6 @@ void* do_nothing() {
 }
 
 bool create_thread_test(mh_context_t* context) {
-    return false;
     for(int i = 0; i < 100; i++) {
         mh_thread_create(do_nothing, NULL);
     }
