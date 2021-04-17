@@ -81,7 +81,7 @@ void mh_tcp_start(mh_tcp_listener_t* listener) {
     // Set the socket options, if it fails, crash the program
     int opt = 1;
     if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
-        mh_context_error(context, "Failed setting socket options.", mh_tcp_start);
+        mh_context_error(listener->context, "Failed setting socket options.", mh_tcp_start);
         abort();
     }
 #endif
