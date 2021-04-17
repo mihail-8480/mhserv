@@ -61,6 +61,7 @@ void mh_http_handle(mh_http_request_t *request) {
 
 You also need to add `libmh.so` to the library's `CMakeLists.txt`:
 ```cmake
+include("path/to/mh/Mh.cmake")
 add_subdirectory(path/to/mh)
 add_library(mylibrary SHARED mylibrary.c)
 target_include_directories(mylibrary PRIVATE path/to/mh)

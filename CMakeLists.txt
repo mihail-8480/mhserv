@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(mhserv C)
+include("src/mh/Mh.cmake")
 
+# mhlib.so
 add_subdirectory(src/mh)
 
 # mhserv
