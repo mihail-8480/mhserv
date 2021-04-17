@@ -29,7 +29,7 @@ set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
 # libmh.so
-add_library(mh SHARED mh/streams/mh_stream.c mh/streams/mh_memory_stream.c mh/mh_memory.c mh/network/mh_tcp.c mh/streams/mh_socket_stream.c mh/network/mh_http.c mh/mh_thread.c mh/streams/mh_file_stream.c mh/mh_context.c mh/collections/mh_shitmap.c mh/collections/mh_collection.c mh/mh_handle.c)
+add_library(mh SHARED src/mh/streams/mh_stream.c src/mh/streams/mh_memory_stream.c src/mh/mh_memory.c src/mh/network/mh_tcp.c src/mh/streams/mh_socket_stream.c src/mh/network/mh_http.c src/mh/mh_thread.c src/mh/streams/mh_file_stream.c src/mh/mh_context.c src/mh/collections/mh_shitmap.c src/mh/collections/mh_collection.c src/mh/mh_handle.c)
 
 if (WIN32)
     target_link_libraries(mh PRIVATE wsock32 ws2_32 dl)
@@ -44,13 +44,13 @@ if(UNIX_LIKE)
 endif(UNIX_LIKE)
 
 # mhserv
-add_executable(mhserv mhserv.c)
+add_executable(mhserv src/mhserv.c)
 target_link_libraries(mhserv PRIVATE mh)
 
 # libexample.so
-add_library(example SHARED example.c)
+add_library(example SHARED src/example.c)
 target_link_libraries(example PRIVATE mh)
 
 # tests
-add_executable(tests tests/tests.c tests/simple_tests.c)
+add_executable(tests src/tests/tests.c src/tests/simple_tests.c)
 target_link_libraries(tests PRIVATE mh)
