@@ -10,22 +10,23 @@ typedef struct mh_http_request_private {
     size_t iterations;
 } mh_http_request_private_t;
 
-// The allocation_size of the buffer that is used while copying
-const size_t mh_http_copy_buffer_size = 128;
-// The maximal allocation_size of a request
-const size_t mh_http_max_request_size = 16384;
-// The error handler
-bool (*mh_http_error_handler)(mh_context_t *, const char *, void *) = NULL;
+typedef struct mh_http_listener {
+    mh_tcp_listener_t base;
+    size_t mh_http_copy_buffer_size;
+    size_t mh_http_max_request_size;
+    bool (*mh_http_error_handler)(mh_context_t *, const char *, void *);
+    http_request_handler_t http_request_handler;
+} mh_http_listener_t;
 
-// The request handler
-http_request_handler_t http_request_handler = NULL;
 
-void mh_http_set_request_handler(http_request_handler_t request_handler) {
-    http_request_handler = request_handler;
+void mh_http_set_request_handler(mh_tcp_listener_t* listener, http_request_handler_t request_handler) {
+    MH_THIS(mh_http_listener_t*, listener);
+    this->http_request_handler = request_handler;
 }
 
-void mh_http_set_error_handler(bool (*handler)(mh_context_t *, const char *, void *)) {
-    mh_http_error_handler = handler;
+void mh_http_set_error_handler(mh_tcp_listener_t* listener, mh_error_handler_t handler) {
+    MH_THIS(mh_http_listener_t*, listener);
+    this->mh_http_error_handler = handler;
 }
 
 mh_http_request_t *mh_http_request_new(mh_context_t *context, mh_socket_address_t address, mh_memory_t *header) {
@@ -76,14 +77,15 @@ mh_http_request_t *mh_http_request_new(mh_context_t *context, mh_socket_address_
 
 
 // Figure out where the end of the header is
-size_t http_find_end_of_headers(mh_memory_t *mem) {
+size_t http_find_end_of_headers(const mh_tcp_listener_t* listener, mh_memory_t *mem) {
+    MH_THIS(mh_http_listener_t*, listener);
     // Turn the memory into a character array
     char *str = (char *) mem->address;
     // If it's less than 8 characters, it probably isn't there
     if (mem->size < 8) return 0;
 
     // Go from the current location (minus some characters back, there are bugs here probably) to the end - 3
-    for (size_t i = mem->offset - mh_http_copy_buffer_size - (mem->offset - 5 > 0 ? 4 : 0); i < mem->offset - 3; i++) {
+    for (size_t i = mem->offset - this->mh_http_copy_buffer_size - (mem->offset - 5 > 0 ? 4 : 0); i < mem->offset - 3; i++) {
         // Read 4 characters per iteration to check for \r\n\r\n
         if (str[i] == '\r' && str[i + 1] == '\n' && str[i + 2] == '\r' && str[i + 3] == '\n') {
             // Return the index of the first character + 4
@@ -93,31 +95,34 @@ size_t http_find_end_of_headers(mh_memory_t *mem) {
     return 0;
 }
 
-void mh_http_request_read_content(mh_stream_t *socket_stream, mh_http_request_t *request) {
+void mh_http_request_read_content(const mh_tcp_listener_t* listener, mh_stream_t *socket_stream, mh_http_request_t *request) {
+    MH_THIS(mh_http_listener_t*, listener);
     mh_http_request_private_t *private = (mh_http_request_private_t *) request;
-    while (private->request_memory->offset == private->iterations * mh_http_copy_buffer_size) {
+    while (private->request_memory->offset == private->iterations * this->mh_http_copy_buffer_size) {
         private->iterations++;
-        mh_stream_copy_to(private->request_stream, socket_stream, mh_http_copy_buffer_size);
+        mh_stream_copy_to(private->request_stream, socket_stream, this->mh_http_copy_buffer_size);
     }
     request->content = mh_memory_reference(private->request_memory->address + private->request_header_end,
                                            private->request_memory->offset - private->request_header_end);
 }
 
-void mh_http(mh_context_t *context, mh_socket_t socket, mh_socket_address_t address) {
+
+void mh_http_on_connect(mh_tcp_listener_t* listener, mh_context_t *context, mh_socket_t socket, mh_socket_address_t address) {
     // If there is no request handler, ERROR!
-    if (http_request_handler == NULL) {
-        mh_context_error(context, "A request handler is not set.", mh_http);
+    MH_THIS(mh_http_listener_t*, listener);
+    if (this->http_request_handler == NULL) {
+        mh_context_error(context, "A request handler is not set.", mh_http_on_connect);
         return;
     }
 
     // Set the error handler to the current context if there is one
-    if (mh_http_error_handler != NULL) {
-        mh_context_set_error_handler(context, mh_http_error_handler);
+    if (this->mh_http_error_handler != NULL) {
+        mh_context_set_error_handler(context, this->mh_http_error_handler);
     }
 
     // Create the streams
     mh_stream_t *socket_stream = mh_socket_stream_new(context, socket);
-    mh_stream_t *request_stream = mh_memory_stream_new(context, mh_http_copy_buffer_size, false);
+    mh_stream_t *request_stream = mh_memory_stream_new(context, this->mh_http_copy_buffer_size, false);
 
     // Get the request_stream stream's memory
     mh_memory_t *request_memory = mh_memory_stream_get_memory(request_stream);
@@ -129,15 +134,15 @@ void mh_http(mh_context_t *context, mh_socket_t socket, mh_socket_address_t addr
     size_t iterations = 0;
     do {
         iterations++;
-        mh_stream_copy_to(request_stream, socket_stream, mh_http_copy_buffer_size);
-        request_header_end = http_find_end_of_headers(request_memory);
+        mh_stream_copy_to(request_stream, socket_stream, this->mh_http_copy_buffer_size);
+        request_header_end = http_find_end_of_headers(&this->base, request_memory);
         if (request_header_end != 0) {
             break;
         }
-        if (request_memory->size >= mh_http_max_request_size) {
+        if (request_memory->size >= this->mh_http_max_request_size) {
             break;
         }
-    } while (request_memory->offset == iterations * mh_http_copy_buffer_size);
+    } while (request_memory->offset == iterations * this->mh_http_copy_buffer_size);
 
     // Split the request_stream memory into header and post
     mh_memory_t header = mh_memory_reference(request_memory->address,
@@ -156,5 +161,17 @@ void mh_http(mh_context_t *context, mh_socket_t socket, mh_socket_address_t addr
     private->request_header_end = request_header_end;
 
     // Call the request handler
-    http_request_handler(context, socket_stream, request);
+    this->http_request_handler(&this->base, context, socket_stream, request);
+}
+
+
+mh_tcp_listener_t *mh_http_listener_new(mh_tcp_listener_t base) {
+    MH_THIS(mh_http_listener_t*, mh_context_allocate(base.context, sizeof(mh_http_listener_t), true).ptr);
+    this->base = base;
+    this->base.on_connect = mh_http_on_connect;
+    this->mh_http_copy_buffer_size = 128;
+    this->mh_http_max_request_size = 16384;
+    this->mh_http_error_handler = NULL;
+    this->http_request_handler = NULL;
+    return &this->base;
 }
