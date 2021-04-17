@@ -29,7 +29,7 @@ void mh_http_set_error_handler(mh_tcp_listener_t* listener, mh_error_handler_t h
     this->mh_http_error_handler = handler;
 }
 
-mh_http_request_t *mh_http_request_new(mh_context_t *context, mh_socket_address_t address, mh_memory_t *header) {
+mh_http_request_t *mh_http_request_new(mh_context_t *context, mh_socket_address_t address, mh_memory_t *header, mh_tcp_listener_t* listener, mh_stream_t* socket_stream) {
     MH_THIS(mh_http_request_private_t*, mh_context_allocate(context, sizeof(mh_http_request_private_t), true).ptr);
 
     // Read the request method
@@ -69,7 +69,10 @@ mh_http_request_t *mh_http_request_new(mh_context_t *context, mh_socket_address_
             .base.method = method,
             .base.url = url,
             .base.version = version,
-            .base.headers = headers
+            .base.headers = headers,
+            .base.listener = listener,
+            .base.stream = socket_stream,
+            .base.context = context
     };
 
     return (mh_http_request_t *) this;
@@ -95,12 +98,12 @@ size_t http_find_end_of_headers(const mh_tcp_listener_t* listener, mh_memory_t *
     return 0;
 }
 
-void mh_http_request_read_content(const mh_tcp_listener_t* listener, mh_stream_t *socket_stream, mh_http_request_t *request) {
-    MH_THIS(mh_http_listener_t*, listener);
+void mh_http_request_read_content(mh_http_request_t *request) {
+    MH_THIS(mh_http_listener_t*, request->listener);
     mh_http_request_private_t *private = (mh_http_request_private_t *) request;
     while (private->request_memory->offset == private->iterations * this->mh_http_copy_buffer_size) {
         private->iterations++;
-        mh_stream_copy_to(private->request_stream, socket_stream, this->mh_http_copy_buffer_size);
+        mh_stream_copy_to(private->request_stream, request->stream, this->mh_http_copy_buffer_size);
     }
     request->content = mh_memory_reference(private->request_memory->address + private->request_header_end,
                                            private->request_memory->offset - private->request_header_end);
@@ -151,7 +154,7 @@ void mh_http_on_connect(mh_tcp_listener_t* listener, mh_context_t *context, mh_s
                                            request_memory->offset - request_header_end);
 
     // Parse the request header
-    mh_http_request_t *request = mh_http_request_new(context, address, &header);
+    mh_http_request_t *request = mh_http_request_new(context, address, &header, listener, socket_stream);
     request->content = post;
 
     // Init some private fields
@@ -161,7 +164,7 @@ void mh_http_on_connect(mh_tcp_listener_t* listener, mh_context_t *context, mh_s
     private->request_header_end = request_header_end;
 
     // Call the request handler
-    this->http_request_handler(&this->base, context, socket_stream, request);
+    this->http_request_handler(request);
 }
 
 
