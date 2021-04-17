@@ -20,4 +20,5 @@ int main(void) {
     MH_TEST_RUN(map_test);
     MH_TEST_RUN(stream_test);
     MH_TEST_RUN(create_thread_test);
+    MH_TEST_RUN(context_create_test);
 }

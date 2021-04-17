@@ -12,5 +12,6 @@ bool map_test(mh_context_t* context);
 bool context_allocation_test(mh_context_t* context);
 bool stream_test(mh_context_t* context);
 bool create_thread_test(mh_context_t* context);
+bool context_create_test(mh_context_t* context);
 
 #endif //MHSERV_TESTS_H
