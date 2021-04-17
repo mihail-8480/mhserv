@@ -32,20 +32,7 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
-# libmh.so
-add_library(mh SHARED src/mh/streams/mh_stream.c src/mh/streams/mh_memory_stream.c src/mh/mh_memory.c src/mh/network/mh_tcp.c src/mh/streams/mh_socket_stream.c src/mh/network/mh_http.c src/mh/mh_thread.c src/mh/streams/mh_file_stream.c src/mh/mh_context.c src/mh/collections/mh_shitmap.c src/mh/collections/mh_collection.c src/mh/mh_handle.c)
-
-if (WIN32)
-    target_link_libraries(mh PRIVATE wsock32 ws2_32 dl)
-endif (WIN32)
-
-if(HAIKU)
-    target_link_libraries(mh PRIVATE bsd network)
-endif(HAIKU)
-
-if(UNIX_LIKE)
-    target_link_libraries(mh PRIVATE pthread dl)
-endif(UNIX_LIKE)
+add_subdirectory(src/mh)
 
 # mhserv
 add_executable(mhserv src/mhserv.c)
