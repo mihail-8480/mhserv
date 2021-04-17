@@ -52,5 +52,5 @@ add_library(example SHARED example.c)
 target_link_libraries(example PRIVATE mh)
 
 # tests
-add_executable(tests tests/tests.c)
+add_executable(tests tests/tests.c tests/simple_tests.c)
 target_link_libraries(tests PRIVATE mh)
