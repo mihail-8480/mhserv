@@ -27,8 +27,20 @@ typedef SOCKET mh_socket_t;
 #error Unsupported platform.
 #endif
 
+
+// The tcp listener struct
+typedef struct mh_tcp_listener mh_tcp_listener_t;
+
 // A function pointer type for mh_tcp_start
-typedef void (*mh_on_connect_t)(mh_context_t *, mh_socket_t, mh_socket_address_t);
+typedef void (*mh_on_connect_t)(mh_tcp_listener_t*, mh_context_t *, mh_socket_t, mh_socket_address_t);
+
+struct mh_tcp_listener {
+    mh_context_t *context;
+    mh_socket_address_t address;
+    int max_clients;
+    bool running;
+    mh_on_connect_t on_connect;
+};
 
 // Convert a socket address to a string
 unsigned short mh_tcp_address_to_string(char *dest, mh_socket_address_t address, size_t size);
@@ -37,7 +49,5 @@ unsigned short mh_tcp_address_to_string(char *dest, mh_socket_address_t address,
 mh_socket_address_t mh_tcp_string_to_address(const char *str, unsigned short port);
 
 // Start a TCP listener
-_Noreturn void
-mh_tcp_start(mh_context_t *context, mh_socket_address_t address, int max_clients, mh_on_connect_t on_connect);
-
+void mh_tcp_start(mh_tcp_listener_t* listener);
 #endif //MHSERV_MH_TCP_H

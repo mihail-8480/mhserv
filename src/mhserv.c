@@ -46,11 +46,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // Load the specified library and configure the http server
-    mh_handle_t *library = mh_handle_new(context, argv[1]);
-    mh_http_set_error_handler(http_error);
-    mh_http_set_request_handler(mh_handle_find_symbol(library, library_function));
-
     // Convert the address to a string  (for verification purposes)
     mh_socket_address_t address = mh_tcp_string_to_address(ip, port);
     char adr_str[40];
@@ -58,7 +53,18 @@ int main(int argc, char **argv) {
     // Convert the string back to an address and print it (to see if everything is done fine)
     int adr_prt = mh_tcp_address_to_string(adr_str, address, 20);
     printf("Listening on http://%s:%d\n", adr_str, adr_prt);
+    mh_tcp_listener_t* listener = mh_http_listener_new((mh_tcp_listener_t) {
+            .context = context,
+            .max_clients = 32,
+            .address = address,
+            .running = false
+    });
+
+    // Load the specified library and configure the http server
+    mh_handle_t *library = mh_handle_new(context, argv[1]);
+    mh_http_set_error_handler(listener, http_error);
+    mh_http_set_request_handler(listener, mh_handle_find_symbol(library, library_function));
 
     // Start the TCP listener
-    mh_tcp_start(context, address, 32, mh_http);
+    mh_tcp_start(listener);
 }

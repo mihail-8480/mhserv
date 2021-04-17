@@ -140,7 +140,6 @@ void mh_context_error(mh_context_t *context, const char *message, void *from) {
     MH_THIS(mh_context_private_t*, context);
     INFO("mh_context_error(%zu, %s, %zu)\n", (size_t) context, message, (size_t) from);
 
-    // If there is an error handler, call it, if it returns true return
     if (this->error_handler != NULL) {
         if (this->error_handler(context, message, from)) {
             return;

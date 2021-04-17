@@ -25,7 +25,7 @@
 #define MH_HEADER_STR(str) mh_map_get(MH_REQUEST->headers, MH_REF_STRING(str))
 
 // The HTTP handler
-void mh_http_handle(mh_context_t *context, mh_stream_t *socket_stream, mh_http_request_t *request);
+void mh_http_handle(const mh_tcp_listener_t* listener, mh_context_t *context, mh_stream_t *socket_stream, mh_http_request_t *request);
 
 #if defined(WIN32)
 #define MH_PLATFORM "Windows"
