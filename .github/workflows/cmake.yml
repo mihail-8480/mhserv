@@ -17,6 +17,10 @@ jobs:
         working-directory: ${{github.workspace}}/build
         shell: bash
         run: cmake . && make
+      - name: Run Tests
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+        run: ./tests
       - name: Upload Libraries
         uses: actions/upload-artifact@v2.2.3
         with:
