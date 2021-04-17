@@ -6,6 +6,10 @@ if(UNIX AND NOT (APPLE OR HAIKU))
     set(UNIX_LIKE 1)
 endif(UNIX AND NOT (APPLE OR HAIKU))
 
+if (WIN32)
+    add_compile_definitions(WIN32)
+endif (WIN32)
+
 if (UNIX)
     add_compile_definitions(UNIX)
 endif(UNIX)
