@@ -52,7 +52,6 @@ int main(int argc, char **argv) {
 
     // Convert the string back to an address and print it (to see if everything is done fine)
     int adr_prt = mh_tcp_address_to_string(adr_str, address, 20);
-    printf("Listening on http://%s:%d\n", adr_str, adr_prt);
     mh_tcp_listener_t* listener = mh_http_listener_new((mh_tcp_listener_t) {
             .context = context,
             .max_clients = 32,
@@ -66,6 +65,7 @@ int main(int argc, char **argv) {
     mh_http_set_request_handler(listener, mh_handle_find_symbol(library, library_function));
 
     // Start the TCP listener
+    printf("Listening on http://%s:%d\n", adr_str, adr_prt);
     mh_tcp_init(listener);
     mh_tcp_start(listener);
 
