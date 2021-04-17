@@ -24,6 +24,8 @@
 // Get a header from MH_REQUEST (str = string)
 #define MH_HEADER_STR(str) mh_map_get(MH_REQUEST->headers, MH_REF_STRING(str))
 
+#define MH_POST_READ() mh_http_request_read_content(MH_REQUEST)
+
 // The HTTP handler
 void mh_http_handle(mh_http_request_t *request);
 
