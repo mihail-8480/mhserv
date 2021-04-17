@@ -36,12 +36,15 @@ add_subdirectory(src/mh)
 
 # mhserv
 add_executable(mhserv src/mhserv.c)
+target_include_directories(mhserv PRIVATE src/mh)
 target_link_libraries(mhserv PRIVATE mh)
 
 # libexample.so
 add_library(example SHARED src/example.c)
+target_include_directories(example PRIVATE src/mh)
 target_link_libraries(example PRIVATE mh)
 
 # tests
 add_executable(tests src/tests/tests.c src/tests/simple_tests.c)
+target_include_directories(tests PRIVATE src/mh)
 target_link_libraries(tests PRIVATE mh)

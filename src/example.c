@@ -1,4 +1,4 @@
-#include "mh/network/mh_http_handler.h"
+#include <network/mh_http_handler.h>
 
 void mh_http_handle(mh_http_request_t *request) {
     MH_ECHO("HTTP/1.1 200 OK" MH_ENDL);

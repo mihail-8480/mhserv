@@ -1,6 +1,6 @@
-#include "../mh/collections/mh_map.h"
-#include "../mh/streams/mh_stream.h"
-#include "../mh/mh_thread.h"
+#include <collections/mh_map.h>
+#include <streams/mh_stream.h>
+#include <mh_thread.h>
 #include "tests.h"
 
 
