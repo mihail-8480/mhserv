@@ -1,6 +1,6 @@
-#include "mh/network/mh_http.h"
-#include "mh/mh_thread.h"
-#include "mh/mh_handle.h"
+#include <network/mh_http.h>
+#include <mh_thread.h>
+#include <mh_handle.h>
 #include <limits.h>
 
 bool program_error(mh_context_t *context, const char *message, void *from) {
