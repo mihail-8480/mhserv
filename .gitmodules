@@ -1,0 +1,3 @@
+[submodule "src/mh"]
+	path = src/mh
+	url = https://github.com/mihail-8480/mh
