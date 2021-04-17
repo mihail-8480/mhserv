@@ -66,5 +66,10 @@ int main(int argc, char **argv) {
     mh_http_set_request_handler(listener, mh_handle_find_symbol(library, library_function));
 
     // Start the TCP listener
+    mh_tcp_init(listener);
     mh_tcp_start(listener);
+
+    // Cleanup
+    mh_tcp_cleanup(listener);
+    mh_end(context);
 }
