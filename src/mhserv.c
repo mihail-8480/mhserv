@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     // Check if the command line arguments are correct
     if (argc != 2) {
-        mh_context_error(context, "Invalid syntax", main);
+        mh_context_error(context, "Invalid syntax.", main);
         return 1;
     }
 
