@@ -6,32 +6,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      - name: Configure CMake
+      - name: Clone
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      - name: Build
-        working-directory: ${{github.workspace}}/build
+        working-directory: ${{github.workspace}}/
+        run: git clone https://github.com/mihail-8480/mh && git clone https://github.com/mihail-8480/mhserv
+      - name: Build libmh and install
+        working-directory: ${{github.workspace}}/
         shell: bash
-        run: cmake . && make
+        run: cmake mh && cmake --build mh && su -c 'cmake --install mh'
+      - name: Build mhserv
+        working-directory: ${{github.workspace}}/
+        shell: bash
+        run: cmake mhserv && cmake --build mhserv
       - name: Run Tests
-        working-directory: ${{github.workspace}}/build
+        working-directory: ${{github.workspace}}/
         shell: bash
-        run: bin/tests
-      - name: Upload Libraries
-        uses: actions/upload-artifact@v2.2.3
-        with:
-          name: libs-bin
-          path: ${{github.workspace}}/build/*.so
-          if-no-files-found: ignore
-      - name: Upload Executable
-        uses: actions/upload-artifact@v2.2.3
-        with:
-          name: mhserv-bin
-          path: ${{github.workspace}}/build/mhserv
-          if-no-files-found: ignore
+        run: mhserv/bin/tests

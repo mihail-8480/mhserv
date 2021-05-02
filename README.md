@@ -1,38 +1,22 @@
 # mhserv
 A relatively simple multi-platform C HTTP server. 
 
-## Building
-
-### Unix-like
-Currently tested on: GNU/Linux, Android (Termux Arch Linux), FreeBSD, Haiku and Mac.
-
-To build `mhserv` you need to have `gcc`, `cmake` and `make` installed.
+## Installation
+To build and install `mhserv` you need to have `gcc`, `cmake` and `make` installed.
 
 ```sh
-git clone https://github.com/mihail-8480/mhserv --recurse-submodules
-cd mhserv
-cmake . && cmake --build .
+git clone https://github.com/mihail-8480/mh
+git clone https://github.com/mihail-8480/mhserv
+cmake mh && cmake --build mh && cmake --install mh
+cmake mhserv && cmake --build mhserv && cmake --install mhserv
 ```
 
-### Windows
-
-You need to install `msys2`, and inside of it to install the following packages:
-
-* `mingw-w64-x86-64-gcc`
-* `mingw-w64-x86-64-gdb`
-* `mingw-w64-x86-64-make`
-* `mingw-w64-x86_64-dlfcn`
-
-Then you can use CLion or the Unix-like instructions to compile it.
-
 ## Running
-On Windows use `libexample.dll`, on Mac use `libexample.dylib` instead.
-
-To make a simple test if it's built correctly you can run `mhserv` with `libexample.so`:
+To make a simple test if it's built and installed correctly you can run `mhserv` with `libexample.so`:
 
 ```sh
 cd bin
-./mhserv ./libexample.so
+mhserv ./libexample.so
 ```
 
 Then go to the [default URL](http://localhost:8080/), if a webpage is displayed - it works!
@@ -62,20 +46,7 @@ void mh_http_handle(mh_http_request_t *request) {
 
 You also need to add `libmh.so` to the library's `CMakeLists.txt`:
 ```cmake
-
-# Before project():
-# If libmh.so isn't in /usr/lib:
-add_subdirectory(path/to/mh)
-
-# After project():
-include("path/to/mh/Mh.cmake")
-
-add_library(mylibrary SHARED mylibrary.c)
 target_link_libraries(mylibrary PRIVATE mh)
-
-# If the files in mh/include aren't in /usr/include:
-target_include_directories(mylibrary PRIVATE path/to/mh/include)
-
 ```
 
 See `example.c` for reference.
