@@ -11,14 +11,14 @@ jobs:
         working-directory: ${{github.workspace}}/
         run: git clone https://github.com/mihail-8480/mh && git clone https://github.com/mihail-8480/mhserv
       - name: Build libmh and install
-        working-directory: ${{github.workspace}}/
+        working-directory: ${{github.workspace}}/mh
         shell: bash
-        run: cmake mh && cmake --build mh && cmake --install mh -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/
+        run: cmake . && cmake --build . && cmake --install . -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/
       - name: Build mhserv
-        working-directory: ${{github.workspace}}/
+        working-directory: ${{github.workspace}}/mhserv
         shell: bash
-        run: cmake mhserv && cmake --build mhserv
+        run: cmake . && cmake --build .
       - name: Run Tests
         working-directory: ${{github.workspace}}/
         shell: bash
-        run: LD_PRELOAD=${{github.workspace}}/lib mhserv/bin/tests
+        run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{github.workspace}}/lib mhserv/bin/tests
