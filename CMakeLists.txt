@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(mhserv C)
 include("Mh.cmake")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-R/usr/local/lib")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-R/usr/local/lib -L${LD_LIBRARY_PATH}")
 
 # mhserv
 add_executable(mhserv src/mhserv.c)
