@@ -20,3 +20,8 @@ target_link_libraries(example PRIVATE mh)
 add_executable(tests src/tests/tests.c src/tests/simple_tests.c)
 target_include_directories(tests PRIVATE src/mh/include)
 target_link_libraries(tests PRIVATE mh)
+
+install(TARGETS mhserv
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib)
