@@ -13,7 +13,7 @@ jobs:
       - name: Build libmh and install
         working-directory: ${{github.workspace}}/
         shell: bash
-        run: cmake mh && cmake --build mh && su -c 'cmake --install mh'
+        run: cmake mh && cmake --build mh && cmake --install mh -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/
       - name: Build mhserv
         working-directory: ${{github.workspace}}/
         shell: bash
@@ -21,4 +21,4 @@ jobs:
       - name: Run Tests
         working-directory: ${{github.workspace}}/
         shell: bash
-        run: mhserv/bin/tests
+        run: LD_PRELOAD=${{github.workspace}}/lib mhserv/bin/tests
