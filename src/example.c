@@ -1,6 +1,6 @@
-#include <network/mh_http_handler.h>
+#include <mh_http_handler.h>
 
-void mh_http_handle(mh_http_request_t *request) {
+MH_UNUSED void mh_http_handle(mh_http_request_t *request) {
     // Send the headers
     MH_ECHO("HTTP/1.1 200 OK" MH_ENDL);
     MH_ECHO("Content-Type: text/html; charset=UTF-8" MH_ENDL);

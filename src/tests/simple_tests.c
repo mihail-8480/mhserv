@@ -1,11 +1,11 @@
-#include <collections/mh_map.h>
-#include <streams/mh_stream.h>
+#include <mh_map.h>
+#include <mh_stream.h>
 #include <mh_thread.h>
 #include "tests.h"
 
 
 void* do_nothing() {
-
+    return NULL;
 }
 
 bool map_test(mh_context_t* context) {
@@ -66,14 +66,14 @@ bool stream_test(mh_context_t* context) {
     mh_stream_read(stream, &mem_ref, 5);
     return mh_memory_is_equal(mem_ref, memory);
 }
-bool create_thread_test(mh_context_t* context) {
+bool create_thread_test(MH_UNUSED mh_context_t* context) {
     for(int i = 0; i < 100; i++) {
         mh_thread_create(do_nothing, NULL);
     }
     return true;
 }
 
-bool context_create_test(mh_context_t *context) {
+bool context_create_test(MH_UNUSED mh_context_t *context) {
     for (int i = 0; i < 10000; i++) {
         mh_context_t *c = mh_start();
         context_allocation_test(c);

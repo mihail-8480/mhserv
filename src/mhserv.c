@@ -1,15 +1,19 @@
-#include <network/mh_http.h>
+#include <mh_http.h>
 #include <mh_thread.h>
 #include <mh_handle.h>
 #include <limits.h>
 
-bool program_error(mh_context_t *context, const char *message, void *from) {
-    fprintf(stderr, "[program_error] An error has occurred at function %#08zx: %s\n", (size_t) from, message);
+bool program_error(MH_UNUSED mh_context_t *context, const char *message, mh_code_location_t from) {
+    char loc[128];
+    mh_code_location_to_string(loc, from);
+    fprintf(stderr, "[program_error] An error has occurred at %s: %s\n", loc, message);
     exit(1);
 }
 
-bool http_error(mh_context_t *context, const char *message, void *from) {
-    fprintf(stderr, "[http_error] An error has occurred at function %#08zx: %s\n", (size_t) from, message);
+bool http_error(mh_context_t *context, const char *message, mh_code_location_t from) {
+    char loc[128];
+    mh_code_location_to_string(loc, from);
+    fprintf(stderr, "[http_error] An error has occurred at %s: %s\n", loc, message);
     mh_end(context);
     mh_thread_exit(0);
 }
@@ -30,7 +34,7 @@ int main(int argc, char **argv) {
     const char *e_port = mh_env_default("MH_PORT", "8080");
     unsigned long port = strtoul(e_port, NULL, 10);
     if (port >= USHRT_MAX) {
-        mh_context_error(context, "The port number is too large.", main);
+        mh_context_error(context, "The port number is too large.", MH_LOCATION(main));
         return 1;
     }
 
@@ -42,7 +46,7 @@ int main(int argc, char **argv) {
 
     // Check if the command line arguments are correct
     if (argc != 2) {
-        mh_context_error(context, "Invalid syntax.", main);
+        mh_context_error(context, "Invalid syntax.", MH_LOCATION(main));
         return 1;
     }
 
@@ -62,7 +66,7 @@ int main(int argc, char **argv) {
     // Load the specified library and configure the http server
     mh_handle_t *library = mh_handle_new(context, argv[1]);
     mh_http_set_error_handler(listener, http_error);
-    mh_http_set_request_handler(listener, mh_handle_find_symbol(library, library_function));
+    mh_http_set_request_handler(listener, (http_request_handler_t)(size_t)mh_handle_find_symbol(library, library_function));
 
     // Start the TCP listener
     printf("Listening on http://%s:%d\n", adr_str, adr_prt);
