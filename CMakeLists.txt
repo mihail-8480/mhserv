@@ -3,12 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(mhserv C)
 include("Mh.cmake")
 
-# For github.
-if (${LD_LIBRARY_PATH})
-    set(LD_COMMAND_LINE "-L${LD_LIBRARY_PATH}")
-endif(${LD_LIBRARY_PATH})
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-R/usr/local/lib ${LD_COMMAND_LINE}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-R/usr/local/lib ${EXTRA_FLAGS}")
 
 # mhserv
 add_executable(mhserv src/mhserv.c)
