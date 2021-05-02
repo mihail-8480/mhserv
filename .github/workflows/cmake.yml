@@ -13,11 +13,11 @@ jobs:
       - name: Build libmh and install
         working-directory: ${{github.workspace}}/mh
         shell: bash
-        run: cmake . && cmake --build . && cmake --install .
+        run: cmake . -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/ && cmake --build . && cmake --install .
       - name: Build mhserv
         working-directory: ${{github.workspace}}/mhserv
         shell: bash
-        run: cmake . && cmake --build .
+        run: cmake -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=${{github.workspace}}/include -DCMAKE_LIBRARY_PATH=${{github.workspace}}/lib . && cmake --build .
       - name: Run Tests
         working-directory: ${{github.workspace}}/
         shell: bash
