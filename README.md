@@ -7,8 +7,10 @@ To build and install `mhserv` you need to have `gcc`, `cmake` and `make` install
 ```sh
 git clone https://github.com/mihail-8480/mh
 git clone https://github.com/mihail-8480/mhserv
-cmake mh && cmake --build mh && cmake --install mh
-cmake mhserv && cmake --build mhserv && cmake --install mhserv
+cd mh
+cmake . && cmake --build . && sudo cmake --install .
+cd ../mhserv
+cmake . && cmake --build . && sudo cmake --install .
 ```
 
 ## Running
