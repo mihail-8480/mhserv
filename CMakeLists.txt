@@ -6,7 +6,8 @@ include("Mh.cmake")
 # For github.
 if (${LD_LIBRARY_PATH})
     set(LD_COMMAND_LINE "-L${LD_LIBRARY_PATH}")
-endif()
+endif(${LD_LIBRARY_PATH})
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-R/usr/local/lib ${LD_COMMAND_LINE}")
 
 # mhserv
@@ -21,6 +22,7 @@ target_link_libraries(example PRIVATE mh)
 add_executable(tests src/tests/tests.c src/tests/simple_tests.c)
 target_link_libraries(tests PRIVATE mh)
 
+# Install
 install(TARGETS mhserv
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
