@@ -52,7 +52,7 @@ If you have your own handler library you can load it in the same way.
 Create a new dynamic library that uses `libmh.so` and declares a function that looks like this:
 
 ```c
-#include <network/mh_http_handler.h>
+#include <mh_http_handler.h>
 
 void mh_http_handle(mh_http_request_t *request) {
     // your code here
@@ -62,11 +62,19 @@ void mh_http_handle(mh_http_request_t *request) {
 
 You also need to add `libmh.so` to the library's `CMakeLists.txt`:
 ```cmake
-include("path/to/mh/Mh.cmake")
+
+# Before project():
+# If libmh.so isn't in /usr/lib:
 add_subdirectory(path/to/mh)
+
+# After project():
+include("path/to/mh/Mh.cmake")
+
 add_library(mylibrary SHARED mylibrary.c)
-target_include_directories(mylibrary PRIVATE path/to/mh)
 target_link_libraries(mylibrary PRIVATE mh)
+
+# If the files in mh/include aren't in /usr/include:
+target_include_directories(mylibrary PRIVATE path/to/mh/include)
 
 ```
 
