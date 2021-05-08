@@ -18,7 +18,3 @@ jobs:
         working-directory: ${{github.workspace}}/mhserv
         shell: bash
         run: cmake -DCMAKE_C_STANDARD_INCLUDE_DIRECTORIES=${{github.workspace}}/include -DEXTRA_FLAGS=-L${{github.workspace}}/lib . && cmake --build .
-      - name: Run Tests
-        working-directory: ${{github.workspace}}/
-        shell: bash
-        run: LD_LIBRARY_PATH=${{github.workspace}}/lib mhserv/bin/tests
