@@ -2,16 +2,16 @@
 A relatively simple multi-platform C HTTP server. 
 
 ## Installation
-To build and install `mhserv` you need to have `gcc`, `cmake` and `make` installed.
+To build and install `mhserv` you need to have [`libmh`](https://github.com/mihail-8480/mh) and it's build dependencies installed.
 
 ```sh
-git clone https://github.com/mihail-8480/mh
 git clone https://github.com/mihail-8480/mhserv
-cd mh
-cmake . && cmake --build . && sudo cmake --install .
-cd ../mhserv
-cmake . && cmake --build . && sudo cmake --install .
+cd mhserv
+cmake . 
+cmake --build .
+cmake --install .
 ```
+*You might need root permissions for `cmake --install .` because it tries to copy files into `/usr/local/lib` by default.*
 
 ## Running
 To make a simple test if it's built and installed correctly you can run `mhserv` with `libexample.so`:
@@ -20,6 +20,8 @@ To make a simple test if it's built and installed correctly you can run `mhserv`
 cd bin
 mhserv ./libexample.so
 ```
+*You need to replace the `.so` extension with `.dll` if you are on Windows or `.dylib` if you are on Mac.*
+    
 
 Then go to the [default URL](http://localhost:8080/), if a webpage is displayed - it works!
 
