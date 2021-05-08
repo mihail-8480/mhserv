@@ -11,7 +11,7 @@ MH_UNUSED void mh_http_handle(mh_http_request_t *request) {
     MH_ECHO(MH_ENDL);
 
     // Check if the URL is `/quit`
-    if (mh_memory_is_equal(request->url, MH_REF_CONST("/quit"))) {
+    if (mh_memory_is_equal(request->url, MH_STRING("/quit"))) {
         // If it is - stop the listener
         MH_ECHO("<p>The listener should stop.</p>");
         request->listener->running = false;
@@ -23,7 +23,7 @@ MH_UNUSED void mh_http_handle(mh_http_request_t *request) {
         // Create the version string if there isn't one already created
         if (version_len == 0) {
             mh_version_t version = mh_get_version();
-            sprintf(version_string, "libmh.so %d.%d.%d", version.major, version.minor, version.patch);
+            sprintf(version_string, "libmh %d.%d.%d", version.major, version.minor, version.patch);
             version_len = strlen(version_string);
         }
 
