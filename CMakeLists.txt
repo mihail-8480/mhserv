@@ -10,7 +10,7 @@ add_executable(mhserv src/mhserv.c)
 target_link_libraries(mhserv PRIVATE mh)
 
 # libexample.so
-add_library(example SHARED src/example.c)
+add_library(example MODULE src/example.c)
 target_link_libraries(example PRIVATE mh)
 
 # Install
