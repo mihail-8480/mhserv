@@ -37,7 +37,7 @@ If you have your own handler library you can load it in the same way.
 
 ## Making your own handler
 
-Create a new dynamic library that uses `libmh.so` and declares a function that looks like this:
+Create a new dynamic library / module that uses `libmh.so` and declares a function that looks like this:
 
 ```c
 #include <mh_http_handler.h>
