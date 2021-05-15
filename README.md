@@ -37,9 +37,10 @@ If you have your own handler library you can load it in the same way.
 
 | Name | Description | Default |
 |------| ----------- | ------- |
-| MH_LIB_FUNCTION | The function that handles the HTTP requests. | `mh_http_handle` |
-| MH_PORT | The port that the HTTP server is hosted at. | `8080` |
-| MH_IP | The IP that the HTTP server is hosted at. | `127.0.0.1` |
+| `MH_LIB_FUNCTION` | The function that handles the HTTP requests. | `mh_http_handle` |
+| `MH_PORT` | The port that the HTTP server is hosted at. | `8080` |
+| `MH_IP` | The IP that the HTTP server is hosted at. | `127.0.0.1` |
+| `MH_LIB_INIT` | A function that gets executed before the listener starts. | `mh_lib_init` |
 
 ## Making your own handler
 
