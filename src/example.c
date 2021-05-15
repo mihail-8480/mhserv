@@ -1,7 +1,14 @@
 #include <mh_http_handler.h>
 
-static char version_string[32];
-static size_t version_len = 0;
+static mh_memory_t *version_str;
+
+MH_UNUSED void mh_lib_init(mh_tcp_listener_t *listener) {
+    mh_version_t version = mh_get_version();
+    mh_stream_t *str = mh_memory_stream_new(listener->context, 0, false);
+    version_str = mh_memory_stream_get_memory(str);
+    mh_write(mh_writer_from_stream(str), "libmh {}.{}.{}",
+             MH_FMT_UINT(version.major), MH_FMT_UINT(version.minor), MH_FMT_UINT(version.patch));
+}
 
 MH_UNUSED void mh_http_handle(mh_http_request_t *request) {
     // Send the headers
@@ -19,17 +26,9 @@ MH_UNUSED void mh_http_handle(mh_http_request_t *request) {
         // If it isn't - print iT wOrKs and the platform
         MH_ECHO("<h1>IT WORKS!!!</h1>");
         MH_ECHO("<p>Running on <b>" MH_PLATFORM "</b>.</p>");
-
-        // Create the version string if there isn't one already created
-        if (version_len == 0) {
-            mh_version_t version = mh_get_version();
-            sprintf(version_string, "libmh %d.%d.%d", version.major, version.minor, version.patch);
-            version_len = strlen(version_string);
-        }
-
-        // Print the libmh.so version
+        // Print the libmh version
         MH_ECHO("<p>Using: <code>");
-        mh_stream_write_reference(MH_SOCKET_STREAM, version_string, version_len);
+        mh_stream_write(MH_SOCKET_STREAM, version_str, version_str->offset);
         MH_ECHO("</code></p>");
     }
 }
