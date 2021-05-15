@@ -12,8 +12,8 @@ bool http_error(mh_context_t *context, const char *message, mh_code_location_t f
 
 int main(int argc, char *argv[]) {
     mh_version_t version = mh_get_version();
-    if (version.major == 0 && version.minor < 1) {
-        MH_THROW(MH_GLOBAL, "Please use a version of libmh that is at least `0.1.0-alpha`!");
+    if (version.major == 0 && version.minor < 2) {
+        MH_THROW(MH_GLOBAL, "Please use a version of libmh that is at least `0.2.0-alpha`!");
     }
 
     // Parse command line arguments
