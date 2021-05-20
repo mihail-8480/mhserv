@@ -87,9 +87,5 @@ int main(int argc, char *argv[]) {
 
     // Start the TCP listener
     MH_WRITE("Listening on http://{}:{}...\n", MH_FMT_STR(adr_str), MH_FMT_UINT(adr_prt));
-    mh_tcp_init(listener);
     mh_tcp_start(listener);
-
-    // Cleanup
-    mh_tcp_cleanup(listener);
 }
