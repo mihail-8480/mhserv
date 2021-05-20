@@ -18,6 +18,15 @@ cmake --install .
 *You might need root permissions for `cmake --install .` because it tries to copy files into `/usr/local/lib` by
 default.*
 
+### On Arch Linux-based distributions
+You can build it using [`mhrepo`](https://github.com/mihail-8480/mhrepo).
+```sh
+git clone https://github.com/mihail-8480/mhrepo
+cd mhrepo
+./mhpkg install mh # If you don't have libmh installed.
+./mhpkg install mhserv
+```
+
 ## Running
 
 To make a simple test if it's built and installed correctly you can run `mhserv` with `libexample.so`:
