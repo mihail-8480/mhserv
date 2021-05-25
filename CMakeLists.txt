@@ -14,9 +14,11 @@ add_library(example MODULE src/examples/example.c)
 target_link_libraries(example PRIVATE mh)
 
 # libchatroom.so
-add_library(chatroom MODULE src/examples/chatroom.c)
+add_library(chatroom MODULE src/examples/chatroom/chatroom.c)
 target_link_libraries(chatroom PRIVATE mh)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/examples/chatroom/index.html
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/chatroom)
 
 # Install
 install(TARGETS mhserv
