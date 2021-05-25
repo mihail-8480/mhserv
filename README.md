@@ -19,7 +19,7 @@ cmake --install .
 default.*
 
 ### On Arch Linux-based distributions
-You can build it using [`mhrepo`](https://github.com/mihail-8480/mhrepo).
+You can build and install it using [`mhpkg`](https://github.com/mihail-8480/mhpkg).
 ```sh
 mhpkg install mhserv
 ```
