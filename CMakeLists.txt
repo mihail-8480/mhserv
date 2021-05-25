@@ -13,6 +13,11 @@ target_link_libraries(mhserv PRIVATE mh)
 add_library(example MODULE src/examples/example.c)
 target_link_libraries(example PRIVATE mh)
 
+# libchatroom.so
+add_library(chatroom MODULE src/examples/chatroom.c)
+target_link_libraries(chatroom PRIVATE mh)
+
+
 # Install
 install(TARGETS mhserv
         RUNTIME DESTINATION bin
