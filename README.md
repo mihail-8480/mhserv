@@ -4,7 +4,7 @@ A relatively simple multi-platform C HTTP server.
 
 ## Installation
 
-To build and install `mhserv` you need to have [`libmh`](https://github.com/mihail-8480/mh) and it's build dependencies
+To build and install `mhserv` you need to have [`mh`](https://github.com/mihail-8480/mh) and it's build dependencies
 installed.
 
 ```sh
@@ -21,6 +21,7 @@ default.*
 ### On Arch Linux-based distributions
 You can build and install it using [`mhpkg`](https://github.com/mihail-8480/mhpkg).
 ```sh
+mhpkg install mh
 mhpkg install mhserv
 ```
 
