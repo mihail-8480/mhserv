@@ -2,6 +2,7 @@
 #include <mh_thread.h>
 #include <mh_console.h>
 #include <mh_handle.h>
+#include <mh_time.h>
 #include <limits.h>
 
 typedef void (*mh_lib_init_t)(mh_tcp_listener_t *listener);
@@ -28,11 +29,29 @@ mh_lib_init_t load_init(mh_handle_t *library, const char *library_init) {
     return init;
 }
 
+static http_request_handler_t handler = NULL;
+static volatile mh_unsigned_number_t connection_count = 0;
+void request_logger(mh_http_request_t *request) {
+    mh_unsigned_number_t id = ++connection_count;
+    char address[50];
+    mh_tcp_address_to_string(address, request->address, sizeof address);
+    MH_WRITE("[{}] start `{}:{}` at {}\n",
+             MH_FMT_UINT(id),
+             MH_FMT_STR(address),
+             MH_FMT_UINT(request->address.sin_port),
+             MH_FMT_MEM(&request->url));
+    mh_stopwatch_t stopwatch = mh_stopwatch_start();
+    handler(request);
+    mh_stopwatch_stop(&stopwatch);
+    MH_WRITE("[{}] end in {}us\n", MH_FMT_UINT(id), MH_FMT_UINT(mh_stopwatch_value(stopwatch) * 1000000));
+
+}
+
 int main(int argc, char *argv[]) {
     // Check the libmh version
     mh_version_t version = mh_get_version();
-    if (version.major == 0 && version.minor < 2) {
-        MH_THROW(MH_GLOBAL, "Please use a version of libmh that is at least `0.2.0-alpha`!");
+    if (version.major > 0 || (version.major == 0 && version.minor < 3)) {
+        MH_THROW(MH_GLOBAL, "Please use a version of libmh that is at least `0.3.0-alpha`!");
     }
 
     // Parse command line arguments
@@ -56,6 +75,13 @@ int main(int argc, char *argv[]) {
     // Check if we should change the default IP
     const char *ip = mh_env_default("MH_IP", "127.0.0.1");
 
+    // Check if we should log the requests
+    const char *log = mh_env_default("MH_LOG", "0");
+    bool should_log = false;
+    if (*log == '1') {
+        should_log = true;
+    }
+
     // Convert the address to a string  (for verification purposes)
     mh_socket_address_t address = mh_tcp_string_to_address(ip, port);
     char adr_str[40];
@@ -65,6 +91,7 @@ int main(int argc, char *argv[]) {
 
     // Load the specified module/library
     mh_handle_t *library = mh_handle_new(MH_GLOBAL, MH_MEM_TO_STRING(mh_map_get(args, MH_STRING("lib"))));
+    handler = (http_request_handler_t) (size_t) mh_handle_find_symbol(library, library_function);
 
     // Configure the HTTP listener
     mh_tcp_listener_t *listener = mh_http_listener_new((mh_tcp_listener_t) {
@@ -74,9 +101,12 @@ int main(int argc, char *argv[]) {
             .running = false
     });
     mh_http_set_error_handler(listener, http_error);
-    mh_http_set_request_handler(listener,
-                                (http_request_handler_t) (size_t) mh_handle_find_symbol(library, library_function));
 
+    if (should_log) {
+        mh_http_set_request_handler(listener, request_logger);
+    } else {
+        mh_http_set_request_handler(listener, handler);
+    }
 
     // Try to load the initialization function
     mh_lib_init_t init = load_init(library, library_init);
